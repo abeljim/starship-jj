@@ -32,6 +32,8 @@ type = "Commit"
 max_length = 24
 # color = "Green"
 # bg_color = "Yellow"
+# default text if the commit description is not set
+# empty_text = "(no description set)"
 
 [[module]]
 # Prints a warning if the working copy contains any conflicts, is divergent or hidden
