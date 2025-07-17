@@ -68,9 +68,9 @@ disabled = false
 text = "(IMMUTABLE)"
 color = "Yellow"
 
-[module.hidden]
+[module.empty]
 disabled = false
-text = "(HIDDEN)"
+text = "(EMPTY)"
 color = "Yellow"
 
 [[module]]
@@ -97,7 +97,7 @@ color = "Green"
 
 [module.removed_lines]
 # Controlls how the number of removed lines is rendered.
-yprefix = "-"
+prefix = "-"
 # suffix = ""
 color = "Red"
 # bg_color = "Yellow"
