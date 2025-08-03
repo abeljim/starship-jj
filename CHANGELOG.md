@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
+## [0.5.1](https://gitlab.com/lanastara_foss/starship-jj/-/compare/0.5.0..0.5.1) - 2025-08-03
+
+### 🐛 Bug Fixes
+
+- missing git ref in some builts- ([8b8f4da](https://gitlab.com/lanastara_foss/starship-jj/-/commit/8b8f4da440dcab8796f0dff03adac03ea9063136)) - Lilly Mannhal
 ## [0.5.0](https://gitlab.com/lanastara_foss/starship-jj/-/compare/0.4.1..0.5.0) - 2025-08-03
 
 ### 🚀 Features
