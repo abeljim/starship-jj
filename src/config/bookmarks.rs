@@ -96,13 +96,13 @@ impl Bookmarks {
         let mut counter = 0;
         'outer: for (behind, bookmarks) in ordered {
             for name in bookmarks {
-                if let Some(number) = self.max_bookmarks {
-                    if counter >= number {
-                        write!(io, "…{module_separator}")?;
-                        // set counter to 0 so we don't print the module separator twice
-                        counter = 0;
-                        break 'outer;
-                    }
+                if let Some(number) = self.max_bookmarks
+                    && counter >= number
+                {
+                    write!(io, "…{module_separator}")?;
+                    // set counter to 0 so we don't print the module separator twice
+                    counter = 0;
+                    break 'outer;
                 }
                 if counter > 0 {
                     write!(io, "{}", self.separator)?;
