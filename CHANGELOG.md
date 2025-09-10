@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
+## [0.6.0](https://gitlab.com/lanastara_foss/starship-jj/-/compare/0.5.1..0.6.0) - 2025-09-10
+
+### 🚀 Features
+
+- **(ci)** use built in junit output instead of junitify- ([01e3024](https://gitlab.com/lanastara_foss/starship-jj/-/commit/01e3024e832e7aa68790cb10bfdce1061ccad23f)) - Lilly Mannhal
+- gitlab-ci code quality report- ([!27](https://gitlab.com/lanastara_foss/starship-jj/-/merge_requests/27)) - Lilly Mannhal
+
+### 🐛 Bug Fixes
+
+- add 'visited' cache to find_parent_bookmarks- ([!31](https://gitlab.com/lanastara_foss/starship-jj/-/merge_requests/31)) - George Pollard
 ## [0.5.1](https://gitlab.com/lanastara_foss/starship-jj/-/compare/0.5.0..0.5.1) - 2025-08-03
 
 ### 🐛 Bug Fixes
