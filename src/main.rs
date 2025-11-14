@@ -153,7 +153,7 @@ fn print_prompt(
         )
     })?;
 
-    let mut state = State::default();
+    let mut state = State::new(!command_helper.global_args().ignore_working_copy);
     let mut data = JJData::default();
 
     config.print(&command_helper, &mut state, &mut data)?;

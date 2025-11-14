@@ -173,8 +173,6 @@ impl State {
         data: &mut crate::JJData,
         global: &super::GlobalConfig,
     ) -> Result<(), CommandError> {
-        let workspace_helper = command_helper.workspace_helper(&Ui::null())?;
-
         if !self.empty.disabled && data.commit.warnings.empty.is_none() {
             data.commit.warnings.empty = state.commit_is_empty(command_helper)?;
         }
@@ -190,15 +188,16 @@ impl State {
 
         if !self.immutable.disabled
             && data.commit.warnings.immutable.is_none()
-            && let Some(commit_id) = state.commit_id(command_helper)?
+            && let Some(commit_id) = state.commit_id(command_helper)?.clone()
         {
+            let workspace_helper = state.workspace_helper(command_helper)?;
             let revs = workspace_helper
                 .parse_revset(&Ui::null(), &RevisionArg::from("immutable()".to_string()))?;
 
             let mut immutable = revs.evaluate_to_commit_ids()?;
 
             data.commit.warnings.immutable =
-                Some(immutable.any(|id| id.as_ref().is_ok_and(|id| id == commit_id)));
+                Some(immutable.any(|id| id.as_ref().is_ok_and(|id| id == &commit_id)));
         }
 
         Ok(())

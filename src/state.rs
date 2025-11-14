@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use jj_cli::{
-    cli_util::CommandHelper,
+    cli_util::{CommandHelper, WorkspaceCommandHelper},
     command_error::CommandError,
     diff_util::{DiffStatOptions, DiffStats, get_copy_records},
     ui::Ui,
@@ -13,15 +13,14 @@ use jj_lib::{
     fileset::FilesetExpression,
     merged_tree::MergedTree,
     repo::{ReadonlyRepo, Repo},
-    workspace::Workspace,
 };
 use pollster::FutureExt;
 
 type Result<T> = std::result::Result<T, CommandError>;
 
-#[derive(Default)]
 pub struct State {
-    workspace: Option<Workspace>,
+    snapshot: bool,
+    workspace_helper: Option<WorkspaceCommandHelper>,
     repo: Option<Arc<ReadonlyRepo>>,
     commit_id: Option<Option<CommitId>>,
     commit: Option<Option<Commit>>,
@@ -30,11 +29,37 @@ pub struct State {
 }
 
 impl State {
-    pub fn workspace(&mut self, command_helper: &CommandHelper) -> Result<&Workspace> {
-        let workspace = command_helper.load_workspace()?;
-        self.workspace = Some(workspace);
+    pub fn new(snapshot: bool) -> Self {
+        Self {
+            snapshot,
+            workspace_helper: Default::default(),
+            repo: Default::default(),
+            commit_id: Default::default(),
+            commit: Default::default(),
+            tree: Default::default(),
+            parent_tree: Default::default(),
+        }
+    }
 
-        let Some(w) = self.workspace.as_ref() else {
+    fn load_workspace(&mut self, command_helper: &CommandHelper) -> Result<()> {
+        if self.workspace_helper.is_some() {
+            return Ok(());
+        }
+        let helper = if self.snapshot {
+            command_helper.workspace_helper(&Ui::null())?
+        } else {
+            command_helper.workspace_helper_no_snapshot(&Ui::null())?
+        };
+        self.workspace_helper = Some(helper);
+        Ok(())
+    }
+
+    pub fn workspace_helper(
+        &mut self,
+        command_helper: &CommandHelper,
+    ) -> Result<&WorkspaceCommandHelper> {
+        self.load_workspace(command_helper)?;
+        let Some(w) = self.workspace_helper.as_ref() else {
             unreachable!()
         };
         Ok(w)
@@ -44,10 +69,9 @@ impl State {
         if self.repo.is_some() {
             return Ok(());
         }
-        let repo_loader = self.workspace(command_helper)?.repo_loader();
-        let op_head = command_helper.resolve_operation(&Ui::null(), repo_loader)?;
-        let repo = repo_loader.load_at(&op_head)?;
-        self.repo = Some(repo);
+        let workspace_helper = self.workspace_helper(command_helper)?;
+        let repo = workspace_helper.repo();
+        self.repo = Some(repo.clone());
         Ok(())
     }
 
@@ -66,7 +90,7 @@ impl State {
         let commit_id = self
             .repo(command_helper)?
             .view()
-            .get_wc_commit_id(self.workspace(command_helper)?.workspace_name())
+            .get_wc_commit_id(self.workspace_helper(command_helper)?.workspace_name())
             .cloned();
 
         self.commit_id = Some(commit_id);
