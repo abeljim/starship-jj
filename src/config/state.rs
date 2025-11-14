@@ -180,8 +180,7 @@ impl State {
             data.commit.warnings.conflict = state
                 .commit(command_helper)?
                 .as_ref()
-                .map(|c| c.has_conflict())
-                .transpose()?;
+                .map(|c| c.has_conflict());
         }
 
         self.parse_hidden_and_divergent(command_helper, state, data, global)?;
@@ -217,7 +216,7 @@ impl State {
                 return Ok(());
             };
             let change_id = commit.change_id();
-            let change = repo.resolve_change_id(change_id);
+            let change = repo.resolve_change_id(change_id)?;
 
             match change {
                 Some(commits) => match commits.len() {
