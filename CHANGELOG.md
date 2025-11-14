@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
+## [0.6.1](https://gitlab.com/lanastara_foss/starship-jj/-/compare/0.6.0..0.6.1) - 2025-11-14
+
+### 🐛 Bug Fixes
+
+- actually snapshot workspace when --ignore-working-copy is not set- ([!35](https://gitlab.com/lanastara_foss/starship-jj/-/merge_requests/35)) - Lilly Mannhal
+
+### 📚 Documentation
+
+- fix typos, improve formatting; fix and expand documentation- ([17d7caf](https://gitlab.com/lanastara_foss/starship-jj/-/commit/17d7caf653d25c316d4bd00eb030fa076d355198)) - rauletaveras
+- brought doc comments (mostly) to parity with example configuration- ([!34](https://gitlab.com/lanastara_foss/starship-jj/-/merge_requests/34)) - rauletaveras
 ## [0.6.0](https://gitlab.com/lanastara_foss/starship-jj/-/compare/0.5.1..0.6.0) - 2025-09-10
 
 ### 🚀 Features
