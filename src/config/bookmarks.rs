@@ -9,6 +9,8 @@ use jj_lib::repo::Repo;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
+use crate::config::Workflow;
+
 use super::util::{Color, Style};
 
 /// Prints information about bookmarks in the working copy's ancestors.
@@ -73,7 +75,7 @@ impl Bookmarks {
         module_separator: &str,
         prev_style: &mut Option<nu_ansi_term::Style>,
     ) -> Result<(), CommandError> {
-        let Some(bookmarks) = data.bookmarks.as_ref() else {
+        let Some(bookmarks) = data.bookmarks.bookmarks.as_ref() else {
             unreachable!()
         };
 
@@ -109,6 +111,10 @@ impl Bookmarks {
                     write!(io, "{}", self.separator)?;
                 }
                 crate::print_ansi_truncated(self.max_length, io, name, self.surround_with_quotes)?;
+
+                let behind =
+                    behind.saturating_sub(if data.bookmarks.ignore_commit { 1 } else { 0 });
+
                 if behind != 0 {
                     match self.behind_symbol {
                         Some(s) => write!(io, "{s}{behind}")?,
@@ -132,7 +138,7 @@ impl Bookmarks {
         data: &mut crate::JJData,
         global: &super::GlobalConfig,
     ) -> Result<(), CommandError> {
-        if data.bookmarks.is_some() {
+        if data.bookmarks.bookmarks.is_some() {
             return Ok(());
         }
         let mut bookmarks = BTreeMap::new();
@@ -140,12 +146,15 @@ impl Bookmarks {
         let repo = state.repo(command_helper)?;
         let view = repo.view();
         let store = repo.store();
-        let Some(commit_id) = state.commit_id(command_helper)? else {
+        let Some(commit) = state.commit(command_helper)? else {
             return Ok(());
         };
 
+        let ignore_commit =
+            commit.description().is_empty() && global.preferred_workflow == Workflow::Squash;
+
         crate::find_parent_bookmarks(
-            commit_id,
+            commit,
             0,
             &global.bookmarks,
             &mut bookmarks,
@@ -154,7 +163,10 @@ impl Bookmarks {
             &mut HashSet::new(),
         )?;
 
-        data.bookmarks = Some(bookmarks);
+        data.bookmarks = crate::BookmarkData {
+            bookmarks: Some(bookmarks),
+            ignore_commit,
+        };
         Ok(())
     }
 }

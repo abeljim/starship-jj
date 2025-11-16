@@ -24,6 +24,7 @@ pub struct State {
     repo: Option<Arc<ReadonlyRepo>>,
     commit_id: Option<Option<CommitId>>,
     commit: Option<Option<Commit>>,
+    parent_commits: Option<Vec<Commit>>,
     tree: Option<Option<MergedTree>>,
     parent_tree: Option<Option<MergedTree>>,
 }
@@ -36,6 +37,7 @@ impl State {
             repo: Default::default(),
             commit_id: Default::default(),
             commit: Default::default(),
+            parent_commits: Default::default(),
             tree: Default::default(),
             parent_tree: Default::default(),
         }
@@ -123,6 +125,32 @@ impl State {
     pub fn commit(&mut self, command_helper: &CommandHelper) -> Result<&Option<Commit>> {
         self.load_commit(command_helper)?;
         let Some(w) = self.commit.as_ref() else {
+            unreachable!()
+        };
+        Ok(w)
+    }
+
+    pub fn load_parent_commits(&mut self, command_helper: &CommandHelper) -> Result<()> {
+        if self.parent_commits.is_some() {
+            return Ok(());
+        }
+
+        let parent_commits = self
+            .commit(command_helper)?
+            .as_ref()
+            .map(|c| {
+                let p: std::result::Result<Vec<_>, _> = c.parents().collect();
+                p
+            })
+            .transpose()?
+            .unwrap_or_default();
+
+        self.parent_commits = Some(parent_commits);
+        Ok(())
+    }
+    pub fn parent_commits(&mut self, command_helper: &CommandHelper) -> Result<&Vec<Commit>> {
+        self.load_parent_commits(command_helper)?;
+        let Some(w) = self.parent_commits.as_ref() else {
             unreachable!()
         };
         Ok(w)

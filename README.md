@@ -18,6 +18,7 @@
 - [x] print a default config file.
 - [x] print the path to the default config file path.
 - [x] set custom config location via command line or environment args.
+- [x] handle both squash and edit workflow
 
 ## Installation
 

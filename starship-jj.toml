@@ -6,6 +6,10 @@ module_separator = " "
 # reset_color = true
 # Timeout after wich the process is teminated.
 # timeout = 1000
+ 
+# Pick between Squash and Edit workflow
+# Controls how empty commits and bookmarks are rendered
+preferred_workflow = "Squash"
 
 # Note that you can change the order of the modules on your prompt
 # by changing their order in this config file.
@@ -50,6 +54,9 @@ max_length = 24
 # empty_text = "(no description set)"
 # Surround the commit text with double-quotes
 # surround_with_quotes = true
+# A prefix that will be printed when the current commit is empty and the previous commit is shown
+# usually becasue of Squash Workflow
+previous_message_symbol="⇣"
 
 [[module]]
 # Prints a warning if the working copy contains any conflicts, is divergent, hidden, immutable, or empty.

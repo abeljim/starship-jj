@@ -36,6 +36,10 @@ pub struct Config {
 #[cfg_attr(feature = "json-schema", derive(JsonSchema))]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct GlobalConfig {
+    /// Pick between Squash and Edit workflow
+    /// Controls how empty commits and bookmarks are rendered
+    #[serde(default)]
+    preferred_workflow: Workflow,
     /// Text that will be printed between each Module.
     #[serde(default = "default_separator")]
     module_separator: String,
@@ -48,6 +52,14 @@ pub struct GlobalConfig {
     /// Controls whether color gets reset at the end.
     #[serde(default = "default_reset_color")]
     pub reset_color: bool,
+}
+
+#[cfg_attr(feature = "json-schema", derive(JsonSchema))]
+#[derive(Deserialize, Serialize, Debug, Default, PartialEq, Eq)]
+pub enum Workflow {
+    #[default]
+    Edit,
+    Squash,
 }
 
 fn default_separator() -> String {
@@ -196,6 +208,7 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             global: GlobalConfig {
+                preferred_workflow: Workflow::Squash,
                 timeout: Default::default(),
                 module_separator: default_separator(),
                 bookmarks: Default::default(),

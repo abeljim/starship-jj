@@ -57,6 +57,7 @@
           "hidden": null,
           "italic": null,
           "max_length": 24,
+          "previous_message_symbol": "⇣",
           "reverse": null,
           "strikethrough": null,
           "surround_with_quotes": true,
@@ -202,6 +203,11 @@
       "description": "Text that will be printed between each Module.",
       "type": "string",
       "default": " "
+    },
+    "preferred_workflow": {
+      "description": "Pick between Squash and Edit workflow\nControls how empty commits and bookmarks are rendered",
+      "$ref": "#/$defs/Workflow",
+      "default": "Edit"
     },
     "reset_color": {
       "description": "Controls whether color gets reset at the end.",
@@ -499,6 +505,13 @@
           "format": "uint",
           "default": 24,
           "minimum": 0
+        },
+        "previous_message_symbol": {
+          "description": "A prefix that will be printed when the current commit is empty and the previous commit is shown\nusually becasue of Squash Workflow",
+          "type": "string",
+          "default": "⇣",
+          "maxLength": 1,
+          "minLength": 1
         },
         "reverse": {
           "type": [
@@ -1116,6 +1129,13 @@
           "default": null
         }
       }
+    },
+    "Workflow": {
+      "type": "string",
+      "enum": [
+        "Edit",
+        "Squash"
+      ]
     }
   }
 }

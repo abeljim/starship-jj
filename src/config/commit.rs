@@ -5,12 +5,18 @@ use jj_cli::command_error::CommandError;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
+use crate::config::Workflow;
+
 use super::util::Style;
 
 /// Prints the working copy's commit text.
 #[cfg_attr(feature = "json-schema", derive(JsonSchema))]
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Commit {
+    /// A prefix that will be printed when the current commit is empty and the previous commit is shown
+    /// usually becasue of Squash Workflow
+    #[serde(default = "default_previous_message_symbol")]
+    previous_message_symbol: char,
     /// Maximum length the commit text will be truncated to.
     #[serde(default = "default_max_length")]
     max_length: Option<usize>,
@@ -25,6 +31,9 @@ pub struct Commit {
     surround_with_quotes: bool,
 }
 
+fn default_previous_message_symbol() -> char {
+    '⇣'
+}
 fn default_max_length() -> Option<usize> {
     Some(24)
 }
@@ -43,6 +52,7 @@ impl Default for Commit {
             max_length: default_max_length(),
             empty_text: default_empty_text(),
             surround_with_quotes: true,
+            previous_message_symbol: default_previous_message_symbol(),
         }
     }
 }
@@ -64,26 +74,27 @@ impl Commit {
             .map(|(line, _rest)| line)
             .unwrap_or(desc);
 
-        if !first_line.is_empty() {
-            self.style.print(io, None, prev_style)?;
+        self.style.print(io, None, prev_style)?;
 
+        if !desc.is_empty() {
             crate::print_ansi_truncated(
                 self.max_length,
                 io,
-                first_line,
+                first_line.as_ref(),
                 self.surround_with_quotes,
             )?;
-            write!(io, "{module_separator}")?;
         } else {
-            self.style.print(io, None, prev_style)?;
             crate::print_ansi_truncated(
                 self.max_length,
                 io,
                 &self.empty_text,
                 self.surround_with_quotes,
             )?;
-            write!(io, "{module_separator}")?;
         }
+        if data.commit.ahead {
+            write!(io, "{}", self.previous_message_symbol)?;
+        }
+        write!(io, "{module_separator}")?;
         Ok(())
     }
     pub(crate) fn parse(
@@ -91,7 +102,7 @@ impl Commit {
         command_helper: &jj_cli::cli_util::CommandHelper,
         state: &mut crate::State,
         data: &mut crate::JJData,
-        _global: &super::GlobalConfig,
+        global: &super::GlobalConfig,
     ) -> Result<(), CommandError> {
         if data.commit.desc.is_some() {
             return Ok(());
@@ -99,7 +110,21 @@ impl Commit {
         let Some(commit) = state.commit(command_helper)? else {
             return Ok(());
         };
-        data.commit.desc = Some(commit.description().to_string());
+
+        let description = commit.description().to_string();
+        if description.is_empty() && global.preferred_workflow == Workflow::Squash {
+            let parents = state.parent_commits(command_helper)?;
+            if parents.len() != 1 {
+                return Ok(());
+            };
+
+            let parent = parents.first().expect("We already checked the vec length");
+
+            data.commit.desc = Some(parent.description().to_string());
+            data.commit.ahead = true;
+        } else {
+            data.commit.desc = Some(description);
+        }
         Ok(())
     }
 }

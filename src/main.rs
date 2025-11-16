@@ -15,7 +15,7 @@ use jj_cli::{
     command_error::{CommandError, user_error},
     ui::Ui,
 };
-use jj_lib::{backend::CommitId, store::Store, view::View};
+use jj_lib::{backend::CommitId, commit::Commit, store::Store, view::View};
 
 pub use state::State;
 use unicode_width::UnicodeWidthStr as _;
@@ -74,8 +74,14 @@ fn get_config_path() -> Result<String, CommandError> {
 
 #[derive(Default)]
 struct JJData {
-    bookmarks: Option<BTreeMap<String, usize>>,
+    bookmarks: BookmarkData,
     commit: CommitData,
+}
+
+#[derive(Default)]
+struct BookmarkData {
+    bookmarks: Option<BTreeMap<String, usize>>,
+    ignore_commit: bool,
 }
 
 #[derive(Default)]
@@ -83,6 +89,7 @@ struct CommitData {
     desc: Option<String>,
     warnings: CommitWarnings,
     diff: Option<CommitDiff>,
+    ahead: bool,
 }
 
 #[derive(Default)]
@@ -162,7 +169,7 @@ fn print_prompt(
 }
 
 fn find_parent_bookmarks(
-    commit_id: &CommitId,
+    commit: &Commit,
     depth: usize,
     config: &BookmarkConfig,
     bookmarks: &mut BTreeMap<String, usize>,
@@ -170,12 +177,12 @@ fn find_parent_bookmarks(
     store: &Arc<Store>,
     visited: &mut HashSet<CommitId>,
 ) -> Result<(), CommandError> {
-    if !visited.insert(commit_id.clone()) {
+    if !visited.insert(commit.id().clone()) {
         return Ok(());
     }
 
     let tmp: Vec<_> = view
-        .local_bookmarks_for_commit(commit_id)
+        .local_bookmarks_for_commit(commit.id())
         .map(|(name, _)| name)
         .collect();
 
@@ -205,10 +212,9 @@ fn find_parent_bookmarks(
         return Ok(());
     }
 
-    let commit = store.get_commit(commit_id)?;
-
-    for p in commit.parent_ids() {
-        find_parent_bookmarks(p, depth + 1, config, bookmarks, view, store, visited)?;
+    for p in commit.parents() {
+        let p = p?;
+        find_parent_bookmarks(&p, depth + 1, config, bookmarks, view, store, visited)?;
     }
     Ok(())
 }
