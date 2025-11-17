@@ -110,7 +110,7 @@ impl Config {
             std::thread::spawn(move || {
                 std::thread::sleep(Duration::from_millis(timeout));
                 if !done2.load(std::sync::atomic::Ordering::Relaxed) {
-                    _ = util::Style::default().print(&mut std::io::stdout(), None);
+                    _ = util::Style::default().print(&mut std::io::stdout(), None, &mut None);
                     print!(" ");
                     let _ = std::io::stdout().flush();
                     std::process::exit(0);
@@ -118,37 +118,63 @@ impl Config {
             });
         }
         let mut io = std::io::stdout();
+        let mut prev_style = None;
         for module in self.modules.iter() {
             match module {
                 ModuleConfig::Bookmarks(bookmarks) => {
                     bookmarks.parse(command_helper, state, data, &self.global)?;
                     let mut io = io.lock();
-                    bookmarks.print(&mut io, data, &self.global.module_separator)?;
+                    bookmarks.print(
+                        &mut io,
+                        data,
+                        &self.global.module_separator,
+                        &mut prev_style,
+                    )?;
                 }
                 ModuleConfig::Commit(commit_desc) => {
                     commit_desc.parse(command_helper, state, data, &self.global)?;
                     let mut io = io.lock();
-                    commit_desc.print(&mut io, data, &self.global.module_separator)?
+                    commit_desc.print(
+                        &mut io,
+                        data,
+                        &self.global.module_separator,
+                        &mut prev_style,
+                    )?
                 }
                 ModuleConfig::State(commit_warnings) => {
                     commit_warnings.parse(command_helper, state, data, &self.global)?;
                     let mut io = io.lock();
-                    commit_warnings.print(&mut io, data, &self.global.module_separator)?
+                    commit_warnings.print(
+                        &mut io,
+                        data,
+                        &self.global.module_separator,
+                        &mut prev_style,
+                    )?
                 }
                 ModuleConfig::Metrics(commit_diff) => {
                     commit_diff.parse(command_helper, state, data, &self.global)?;
                     let mut io = io.lock();
-                    commit_diff.print(&mut io, data, &self.global.module_separator)?
+                    commit_diff.print(
+                        &mut io,
+                        data,
+                        &self.global.module_separator,
+                        &mut prev_style,
+                    )?
                 }
                 ModuleConfig::Symbol(symbol) => {
                     symbol.parse(command_helper, state, data, &self.global)?;
                     let mut io = io.lock();
-                    symbol.print(&mut io, data, &self.global.module_separator)?
+                    symbol.print(
+                        &mut io,
+                        data,
+                        &self.global.module_separator,
+                        &mut prev_style,
+                    )?
                 }
             }
         }
         if self.global.reset_color {
-            util::Style::default().print(&mut io, None)?;
+            util::Style::default().print(&mut io, None, &mut prev_style)?;
         }
         Ok(())
     }
@@ -177,5 +203,28 @@ impl Default for Config {
             },
             modules: default_modules(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use insta::assert_debug_snapshot;
+
+    #[test]
+    fn parse_provided_config() {
+        let config = include_str!("../starship-jj.toml");
+        let c: Config = toml::from_str(config).unwrap();
+
+        assert_debug_snapshot!(c);
+    }
+
+    #[test]
+    fn parse_generated_config() {
+        let d = Config::default();
+        let s = toml::to_string(&d).unwrap();
+        let c: Config = toml::from_str(&s).unwrap();
+
+        assert_debug_snapshot!(c);
     }
 }

@@ -116,14 +116,15 @@ impl Metric {
         number: usize,
         global_style: &Style,
         fallback: impl Into<Option<Style>>,
+        prev_style: &mut Option<nu_ansi_term::Style>,
     ) -> String {
         format!(
             "{}{}{}{}{}",
-            self.style.format(fallback),
+            self.style.format(fallback, prev_style),
             self.prefix,
             number,
             self.suffix,
-            global_style.format(default_style()),
+            global_style.format(default_style(), prev_style),
         )
     }
 }
@@ -141,24 +142,30 @@ impl Metrics {
         io: &mut impl Write,
         data: &crate::JJData,
         module_separator: &str,
+        prev_style: &mut Option<nu_ansi_term::Style>,
     ) -> Result<(), CommandError> {
         let Some(diff) = &data.commit.diff else {
             return Ok(());
         };
 
         let context = Context {
-            added: self
-                .added_lines
-                .format(diff.lines_added, &self.style, default_added_style()),
+            added: self.added_lines.format(
+                diff.lines_added,
+                &self.style,
+                default_added_style(),
+                &mut None,
+            ),
             removed: self.removed_lines.format(
                 diff.lines_removed,
                 &self.style,
                 default_removed_style(),
+                &mut None,
             ),
             changed: self.changed_files.format(
                 diff.files_changed,
                 &self.style,
                 default_changed_style(),
+                &mut None,
             ),
         };
         let mut tiny_template = tinytemplate::TinyTemplate::new();
@@ -179,12 +186,14 @@ impl Metrics {
             )
         })?;
 
-        self.style.print(io, default_style())?;
+        *prev_style = None;
+        self.style.print(io, default_style(), prev_style)?;
 
         write!(io, "{s}{module_separator}")?;
 
         Ok(())
     }
+
     pub(crate) fn parse(
         &self,
         command_helper: &jj_cli::cli_util::CommandHelper,

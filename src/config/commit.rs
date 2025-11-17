@@ -53,6 +53,7 @@ impl Commit {
         io: &mut impl Write,
         data: &crate::JJData,
         module_separator: &str,
+        prev_style: &mut Option<nu_ansi_term::Style>,
     ) -> Result<(), CommandError> {
         let Some(desc) = data.commit.desc.as_ref() else {
             return Ok(());
@@ -64,7 +65,7 @@ impl Commit {
             .unwrap_or(desc);
 
         if !first_line.is_empty() {
-            self.style.print(io, None)?;
+            self.style.print(io, None, prev_style)?;
 
             crate::print_ansi_truncated(
                 self.max_length,
@@ -74,7 +75,7 @@ impl Commit {
             )?;
             write!(io, "{module_separator}")?;
         } else {
-            self.style.print(io, None)?;
+            self.style.print(io, None, prev_style)?;
             crate::print_ansi_truncated(
                 self.max_length,
                 io,

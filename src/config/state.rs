@@ -122,10 +122,11 @@ impl State {
         io: &mut impl Write,
         data: &crate::JJData,
         module_separator: &str,
+        prev_style: &mut Option<nu_ansi_term::Style>,
     ) -> Result<(), CommandError> {
         let mut first = true;
         if let Some(true) = data.commit.warnings.conflict {
-            self.conflict.style.print(io, None)?;
+            self.conflict.style.print(io, None, prev_style)?;
             first = false;
             write!(io, "{}", self.conflict.text)?;
         }
@@ -134,7 +135,7 @@ impl State {
                 write!(io, "{}", self.separator)?;
             }
             first = false;
-            self.divergent.style.print(io, None)?;
+            self.divergent.style.print(io, None, prev_style)?;
             write!(io, "{}", self.divergent.text)?;
         }
         if let Some(true) = data.commit.warnings.hidden {
@@ -142,7 +143,7 @@ impl State {
                 write!(io, "{}", self.separator)?;
             }
             first = false;
-            self.hidden.style.print(io, None)?;
+            self.hidden.style.print(io, None, prev_style)?;
             write!(io, "{}", self.hidden.text)?;
         }
         if let Some(true) = data.commit.warnings.immutable {
@@ -150,7 +151,7 @@ impl State {
                 write!(io, "{}", self.separator)?;
             }
             first = false;
-            self.immutable.style.print(io, None)?;
+            self.immutable.style.print(io, None, prev_style)?;
             write!(io, "{}", self.immutable.text)?;
         }
         if let Some(true) = data.commit.warnings.empty {
@@ -158,7 +159,7 @@ impl State {
                 write!(io, "{}", self.separator)?;
             }
             first = false;
-            self.empty.style.print(io, None)?;
+            self.empty.style.print(io, None, prev_style)?;
             write!(io, "{}", self.empty.text)?;
         }
         if !first {

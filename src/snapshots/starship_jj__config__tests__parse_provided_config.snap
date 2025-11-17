@@ -1,0 +1,254 @@
+---
+source: src/config.rs
+assertion_line: 219
+expression: c
+---
+Config {
+    global: GlobalConfig {
+        module_separator: " ",
+        timeout: None,
+        bookmarks: BookmarkConfig {
+            search_depth: 100,
+            exclude: [],
+        },
+        reset_color: true,
+    },
+    modules: [
+        Bookmarks(
+            Bookmarks {
+                separator: " ",
+                style: Style {
+                    color: Some(
+                        Magenta,
+                    ),
+                    bg_color: None,
+                    attributes: TextAttributess {
+                        bold: None,
+                        dimmed: None,
+                        italic: None,
+                        underline: None,
+                        blink: None,
+                        reverse: None,
+                        hidden: None,
+                        strikethrough: None,
+                    },
+                },
+                behind_symbol: Some(
+                    '⇡',
+                ),
+                max_bookmarks: None,
+                max_length: None,
+                surround_with_quotes: true,
+            },
+        ),
+        Commit(
+            Commit {
+                max_length: Some(
+                    24,
+                ),
+                empty_text: "(no description set)",
+                style: Style {
+                    color: None,
+                    bg_color: None,
+                    attributes: TextAttributess {
+                        bold: None,
+                        dimmed: None,
+                        italic: None,
+                        underline: None,
+                        blink: None,
+                        reverse: None,
+                        hidden: None,
+                        strikethrough: None,
+                    },
+                },
+                surround_with_quotes: true,
+            },
+        ),
+        State(
+            State {
+                separator: " ",
+                conflict: Status {
+                    disabled: false,
+                    text: "(CONFLICT)",
+                    style: Style {
+                        color: Some(
+                            Red,
+                        ),
+                        bg_color: None,
+                        attributes: TextAttributess {
+                            bold: None,
+                            dimmed: None,
+                            italic: None,
+                            underline: None,
+                            blink: None,
+                            reverse: None,
+                            hidden: None,
+                            strikethrough: None,
+                        },
+                    },
+                },
+                divergent: Status {
+                    disabled: false,
+                    text: "(DIVERGENT)",
+                    style: Style {
+                        color: Some(
+                            Cyan,
+                        ),
+                        bg_color: None,
+                        attributes: TextAttributess {
+                            bold: None,
+                            dimmed: None,
+                            italic: None,
+                            underline: None,
+                            blink: None,
+                            reverse: None,
+                            hidden: None,
+                            strikethrough: None,
+                        },
+                    },
+                },
+                empty: Status {
+                    disabled: false,
+                    text: "(EMPTY)",
+                    style: Style {
+                        color: Some(
+                            Yellow,
+                        ),
+                        bg_color: None,
+                        attributes: TextAttributess {
+                            bold: None,
+                            dimmed: None,
+                            italic: None,
+                            underline: None,
+                            blink: None,
+                            reverse: None,
+                            hidden: None,
+                            strikethrough: None,
+                        },
+                    },
+                },
+                immutable: Status {
+                    disabled: false,
+                    text: "(IMMUTABLE)",
+                    style: Style {
+                        color: Some(
+                            Yellow,
+                        ),
+                        bg_color: None,
+                        attributes: TextAttributess {
+                            bold: None,
+                            dimmed: None,
+                            italic: None,
+                            underline: None,
+                            blink: None,
+                            reverse: None,
+                            hidden: None,
+                            strikethrough: None,
+                        },
+                    },
+                },
+                hidden: Status {
+                    disabled: false,
+                    text: "(HIDDEN)",
+                    style: Style {
+                        color: Some(
+                            Yellow,
+                        ),
+                        bg_color: None,
+                        attributes: TextAttributess {
+                            bold: None,
+                            dimmed: None,
+                            italic: None,
+                            underline: None,
+                            blink: None,
+                            reverse: None,
+                            hidden: None,
+                            strikethrough: None,
+                        },
+                    },
+                },
+            },
+        ),
+        Metrics(
+            Metrics {
+                template: "[{changed} {added}{removed}]",
+                changed_files: Metric {
+                    prefix: "",
+                    suffix: "",
+                    style: Style {
+                        color: Some(
+                            Cyan,
+                        ),
+                        bg_color: None,
+                        attributes: TextAttributess {
+                            bold: None,
+                            dimmed: None,
+                            italic: None,
+                            underline: None,
+                            blink: None,
+                            reverse: None,
+                            hidden: None,
+                            strikethrough: None,
+                        },
+                    },
+                },
+                added_lines: Metric {
+                    prefix: "+",
+                    suffix: "",
+                    style: Style {
+                        color: Some(
+                            Green,
+                        ),
+                        bg_color: None,
+                        attributes: TextAttributess {
+                            bold: None,
+                            dimmed: None,
+                            italic: None,
+                            underline: None,
+                            blink: None,
+                            reverse: None,
+                            hidden: None,
+                            strikethrough: None,
+                        },
+                    },
+                },
+                removed_lines: Metric {
+                    prefix: "-",
+                    suffix: "",
+                    style: Style {
+                        color: Some(
+                            Red,
+                        ),
+                        bg_color: None,
+                        attributes: TextAttributess {
+                            bold: None,
+                            dimmed: None,
+                            italic: None,
+                            underline: None,
+                            blink: None,
+                            reverse: None,
+                            hidden: None,
+                            strikethrough: None,
+                        },
+                    },
+                },
+                style: Style {
+                    color: Some(
+                        Magenta,
+                    ),
+                    bg_color: None,
+                    attributes: TextAttributess {
+                        bold: None,
+                        dimmed: None,
+                        italic: None,
+                        underline: None,
+                        blink: None,
+                        reverse: None,
+                        hidden: None,
+                        strikethrough: None,
+                    },
+                },
+            },
+        ),
+    ],
+}

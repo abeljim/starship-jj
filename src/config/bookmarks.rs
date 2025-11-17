@@ -71,12 +71,13 @@ impl Bookmarks {
         io: &mut impl Write,
         data: &crate::JJData,
         module_separator: &str,
+        prev_style: &mut Option<nu_ansi_term::Style>,
     ) -> Result<(), CommandError> {
         let Some(bookmarks) = data.bookmarks.as_ref() else {
             unreachable!()
         };
 
-        self.style.print(io, default_style())?;
+        self.style.print(io, default_style(), prev_style)?;
 
         let mut ordered: BTreeMap<usize, BTreeSet<&String>> = BTreeMap::new();
 

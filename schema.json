@@ -1,77 +1,138 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Config",
   "type": "object",
   "properties": {
     "bookmarks": {
       "description": "Controls the behaviour of the bookmark finding algorithm.",
+      "$ref": "#/$defs/BookmarkConfig",
       "default": {
         "exclude": [],
         "search_depth": 100
-      },
-      "allOf": [
-        {
-          "$ref": "#/definitions/BookmarkConfig"
-        }
-      ]
+      }
     },
     "module": {
       "description": "Modules that will be rendered.",
+      "type": "array",
       "default": [
         {
           "bg_color": null,
+          "blink": null,
+          "bold": null,
           "color": "Blue",
+          "dimmed": null,
+          "hidden": null,
+          "italic": null,
+          "reverse": null,
+          "strikethrough": null,
           "symbol": "󱗆 ",
-          "type": "Symbol"
+          "type": "Symbol",
+          "underline": null
         },
         {
           "behind_symbol": "⇡",
           "bg_color": null,
+          "blink": null,
+          "bold": null,
           "color": "Magenta",
+          "dimmed": null,
+          "hidden": null,
+          "italic": null,
           "max_bookmarks": null,
           "max_length": null,
+          "reverse": null,
           "separator": " ",
+          "strikethrough": null,
           "surround_with_quotes": true,
-          "type": "Bookmarks"
+          "type": "Bookmarks",
+          "underline": null
         },
         {
           "bg_color": null,
+          "blink": null,
+          "bold": null,
           "color": null,
+          "dimmed": null,
           "empty_text": "(no description set)",
+          "hidden": null,
+          "italic": null,
           "max_length": 24,
+          "reverse": null,
+          "strikethrough": null,
           "surround_with_quotes": true,
-          "type": "Commit"
+          "type": "Commit",
+          "underline": null
         },
         {
           "conflict": {
             "bg_color": null,
+            "blink": null,
+            "bold": null,
             "color": "Red",
+            "dimmed": null,
             "disabled": false,
-            "text": "(CONFLICT)"
+            "hidden": null,
+            "italic": null,
+            "reverse": null,
+            "strikethrough": null,
+            "text": "(CONFLICT)",
+            "underline": null
           },
           "divergent": {
             "bg_color": null,
+            "blink": null,
+            "bold": null,
             "color": "Cyan",
+            "dimmed": null,
             "disabled": false,
-            "text": "(DIVERGENT)"
+            "hidden": null,
+            "italic": null,
+            "reverse": null,
+            "strikethrough": null,
+            "text": "(DIVERGENT)",
+            "underline": null
           },
           "empty": {
             "bg_color": null,
+            "blink": null,
+            "bold": null,
             "color": "Yellow",
+            "dimmed": null,
             "disabled": false,
-            "text": "(EMPTY)"
+            "hidden": null,
+            "italic": null,
+            "reverse": null,
+            "strikethrough": null,
+            "text": "(EMPTY)",
+            "underline": null
           },
           "hidden": {
             "bg_color": null,
+            "blink": null,
+            "bold": null,
             "color": "Yellow",
+            "dimmed": null,
             "disabled": false,
-            "text": "(HIDDEN)"
+            "hidden": null,
+            "italic": null,
+            "reverse": null,
+            "strikethrough": null,
+            "text": "(HIDDEN)",
+            "underline": null
           },
           "immutable": {
             "bg_color": null,
+            "blink": null,
+            "bold": null,
             "color": "Yellow",
+            "dimmed": null,
             "disabled": false,
-            "text": "(IMMUTABLE)"
+            "hidden": null,
+            "italic": null,
+            "reverse": null,
+            "strikethrough": null,
+            "text": "(IMMUTABLE)",
+            "underline": null
           },
           "separator": " ",
           "type": "State"
@@ -79,72 +140,225 @@
         {
           "added_lines": {
             "bg_color": null,
+            "blink": null,
+            "bold": null,
             "color": "Green",
+            "dimmed": null,
+            "hidden": null,
+            "italic": null,
             "prefix": "+",
-            "suffix": ""
+            "reverse": null,
+            "strikethrough": null,
+            "suffix": "",
+            "underline": null
           },
           "bg_color": null,
+          "blink": null,
+          "bold": null,
           "changed_files": {
             "bg_color": null,
+            "blink": null,
+            "bold": null,
             "color": "Cyan",
+            "dimmed": null,
+            "hidden": null,
+            "italic": null,
             "prefix": "",
-            "suffix": ""
+            "reverse": null,
+            "strikethrough": null,
+            "suffix": "",
+            "underline": null
           },
           "color": "Magenta",
+          "dimmed": null,
+          "hidden": null,
+          "italic": null,
           "removed_lines": {
             "bg_color": null,
+            "blink": null,
+            "bold": null,
             "color": "Red",
+            "dimmed": null,
+            "hidden": null,
+            "italic": null,
             "prefix": "-",
-            "suffix": ""
+            "reverse": null,
+            "strikethrough": null,
+            "suffix": "",
+            "underline": null
           },
+          "reverse": null,
+          "strikethrough": null,
           "template": "[{changed} {added}{removed}]",
-          "type": "Metrics"
+          "type": "Metrics",
+          "underline": null
         }
       ],
-      "type": "array",
       "items": {
-        "$ref": "#/definitions/ModuleConfig"
+        "$ref": "#/$defs/ModuleConfig"
       }
     },
     "module_separator": {
       "description": "Text that will be printed between each Module.",
-      "default": " ",
-      "type": "string"
+      "type": "string",
+      "default": " "
     },
     "reset_color": {
       "description": "Controls whether color gets reset at the end.",
-      "default": true,
-      "type": "boolean"
+      "type": "boolean",
+      "default": true
     },
     "timeout": {
-      "description": "Timeout after wich the process is teminated.",
-      "default": null,
+      "description": "Timeout after which the process is teminated.",
       "type": [
         "integer",
         "null"
       ],
       "format": "uint64",
-      "minimum": 0.0
+      "default": null,
+      "minimum": 0
     }
   },
-  "definitions": {
+  "$defs": {
     "BookmarkConfig": {
       "type": "object",
       "properties": {
         "exclude": {
           "description": "Exclude certain bookmarks from the search (supports globs).",
-          "default": [],
           "type": "array",
+          "default": [],
           "items": {
             "type": "string"
           }
         },
         "search_depth": {
           "description": "Controls how far we are looking back to find bookmarks.",
-          "default": 100,
           "type": "integer",
           "format": "uint",
-          "minimum": 0.0
+          "default": 100,
+          "minimum": 0
+        }
+      }
+    },
+    "Bookmarks": {
+      "description": "Prints information about bookmarks in the working copy's ancestors.",
+      "type": "object",
+      "properties": {
+        "behind_symbol": {
+          "description": "A suffix that will be printed when the given bookmark is behind the working copy.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": "⇡",
+          "maxLength": 1,
+          "minLength": 1
+        },
+        "bg_color": {
+          "description": "Background Color",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "blink": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "bold": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "color": {
+          "description": "Text Color",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dimmed": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "hidden": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "italic": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "max_bookmarks": {
+          "description": "Maximum amount of bookmarks that will be rendered.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0
+        },
+        "max_length": {
+          "description": "Maximum length the bookmark name will be truncated to.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "minimum": 0
+        },
+        "reverse": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "separator": {
+          "description": "Text that will be rendered between each bookmark.",
+          "type": "string",
+          "default": " "
+        },
+        "strikethrough": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "surround_with_quotes": {
+          "description": "Do not render quotes around bookmark names.",
+          "type": "boolean",
+          "default": true
+        },
+        "underline": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
         }
       }
     },
@@ -173,39 +387,146 @@
         },
         {
           "type": "object",
-          "required": [
-            "TrueColor"
-          ],
           "properties": {
             "TrueColor": {
               "type": "object",
-              "required": [
-                "b",
-                "g",
-                "r"
-              ],
               "properties": {
                 "b": {
                   "type": "integer",
                   "format": "uint8",
-                  "minimum": 0.0
+                  "maximum": 255,
+                  "minimum": 0
                 },
                 "g": {
                   "type": "integer",
                   "format": "uint8",
-                  "minimum": 0.0
+                  "maximum": 255,
+                  "minimum": 0
                 },
                 "r": {
                   "type": "integer",
                   "format": "uint8",
-                  "minimum": 0.0
+                  "maximum": 255,
+                  "minimum": 0
                 }
-              }
+              },
+              "required": [
+                "r",
+                "g",
+                "b"
+              ]
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "required": [
+            "TrueColor"
+          ]
         }
       ]
+    },
+    "Commit": {
+      "description": "Prints the working copy's commit text.",
+      "type": "object",
+      "properties": {
+        "bg_color": {
+          "description": "Background Color",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "blink": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "bold": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "color": {
+          "description": "Text Color",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dimmed": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "empty_text": {
+          "description": "The text that should be printed when the current revision has no description yet.",
+          "type": "string",
+          "default": "(no description set)"
+        },
+        "hidden": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "italic": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "max_length": {
+          "description": "Maximum length the commit text will be truncated to.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint",
+          "default": 24,
+          "minimum": 0
+        },
+        "reverse": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "strikethrough": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "surround_with_quotes": {
+          "description": "Render quotes around the description.",
+          "type": "boolean",
+          "default": true
+        },
+        "underline": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        }
+      }
     },
     "Metric": {
       "type": "object",
@@ -214,423 +535,585 @@
           "description": "Background Color",
           "anyOf": [
             {
-              "$ref": "#/definitions/Color"
+              "$ref": "#/$defs/Color"
             },
             {
               "type": "null"
             }
           ]
+        },
+        "blink": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "bold": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
         },
         "color": {
           "description": "Text Color",
           "anyOf": [
             {
-              "$ref": "#/definitions/Color"
+              "$ref": "#/$defs/Color"
             },
             {
               "type": "null"
             }
           ]
         },
+        "dimmed": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "hidden": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "italic": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
         "prefix": {
-          "default": "",
-          "type": "string"
+          "type": "string",
+          "default": ""
+        },
+        "reverse": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "strikethrough": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
         },
         "suffix": {
-          "default": "",
-          "type": "string"
+          "type": "string",
+          "default": ""
+        },
+        "underline": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        }
+      }
+    },
+    "Metrics": {
+      "description": "Prints the amount of changes in the working copy.",
+      "type": "object",
+      "properties": {
+        "added_lines": {
+          "description": "Controls how the number of added lines is rendered.",
+          "$ref": "#/$defs/Metric",
+          "default": {
+            "bg_color": null,
+            "blink": null,
+            "bold": null,
+            "color": "Green",
+            "dimmed": null,
+            "hidden": null,
+            "italic": null,
+            "prefix": "+",
+            "reverse": null,
+            "strikethrough": null,
+            "suffix": "",
+            "underline": null
+          }
+        },
+        "bg_color": {
+          "description": "Background Color",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "blink": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "bold": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "changed_files": {
+          "description": "Controls how the number of changed files is rendered.",
+          "$ref": "#/$defs/Metric",
+          "default": {
+            "bg_color": null,
+            "blink": null,
+            "bold": null,
+            "color": "Cyan",
+            "dimmed": null,
+            "hidden": null,
+            "italic": null,
+            "prefix": "",
+            "reverse": null,
+            "strikethrough": null,
+            "suffix": "",
+            "underline": null
+          }
+        },
+        "color": {
+          "description": "Text Color",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dimmed": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "hidden": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "italic": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "removed_lines": {
+          "description": "Controls how the number of removed lines is rendered.",
+          "$ref": "#/$defs/Metric",
+          "default": {
+            "bg_color": null,
+            "blink": null,
+            "bold": null,
+            "color": "Red",
+            "dimmed": null,
+            "hidden": null,
+            "italic": null,
+            "prefix": "-",
+            "reverse": null,
+            "strikethrough": null,
+            "suffix": "",
+            "underline": null
+          }
+        },
+        "reverse": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "strikethrough": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "template": {
+          "description": "Controls how the changes are rendered. Use {added}, {removed} and {changed} to render the number of changes.",
+          "type": "string",
+          "default": "[{changed} {added}{removed}]"
+        },
+        "underline": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
         }
       }
     },
     "ModuleConfig": {
-      "description": "A module that prints some info about the current jj repo",
+      "description": "A module that prints some info about the current jj repo.",
       "oneOf": [
         {
-          "description": "Prints an indicator.",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
-            "bg_color": {
-              "description": "Background Color",
-              "anyOf": [
-                {
-                  "$ref": "#/definitions/Color"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "color": {
-              "description": "Text Color",
-              "anyOf": [
-                {
-                  "$ref": "#/definitions/Color"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "symbol": {
-              "description": "Text that will be rendered between each bookmark.",
-              "default": "󱗆 ",
-              "type": "string"
-            },
             "type": {
               "type": "string",
-              "enum": [
-                "Symbol"
-              ]
+              "const": "Symbol"
             }
-          }
+          },
+          "$ref": "#/$defs/Symbol",
+          "required": [
+            "type"
+          ]
         },
         {
-          "description": "Prints information about bookmarks in the working copy's ancestors.",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
-            "behind_symbol": {
-              "description": "A suffix that will be printed when the given bookmark is behind the working copy.",
-              "default": "⇡",
-              "type": [
-                "string",
-                "null"
-              ],
-              "maxLength": 1,
-              "minLength": 1
-            },
-            "bg_color": {
-              "description": "Background Color",
-              "anyOf": [
-                {
-                  "$ref": "#/definitions/Color"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "color": {
-              "description": "Text Color",
-              "anyOf": [
-                {
-                  "$ref": "#/definitions/Color"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "max_bookmarks": {
-              "description": "Maximum amout of bookmarks that will be rendered.",
-              "type": [
-                "integer",
-                "null"
-              ],
-              "format": "uint",
-              "minimum": 0.0
-            },
-            "max_length": {
-              "description": "Maximum length the bookmark name will be truncated to.",
-              "type": [
-                "integer",
-                "null"
-              ],
-              "format": "uint",
-              "minimum": 0.0
-            },
-            "separator": {
-              "description": "Text that will be rendered between each bookmark.",
-              "default": " ",
-              "type": "string"
-            },
-            "surround_with_quotes": {
-              "description": "Do not render quotes around bookmark names.",
-              "default": true,
-              "type": "boolean"
-            },
             "type": {
               "type": "string",
-              "enum": [
-                "Bookmarks"
-              ]
+              "const": "Bookmarks"
             }
-          }
+          },
+          "$ref": "#/$defs/Bookmarks",
+          "required": [
+            "type"
+          ]
         },
         {
-          "description": "Prints the working copy's commit text.",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
-            "bg_color": {
-              "description": "Background Color",
-              "anyOf": [
-                {
-                  "$ref": "#/definitions/Color"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "color": {
-              "description": "Text Color",
-              "anyOf": [
-                {
-                  "$ref": "#/definitions/Color"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "empty_text": {
-              "description": "The text that should be printed when the current revision has no description yet.",
-              "default": "(no description set)",
-              "type": "string"
-            },
-            "max_length": {
-              "description": "Maximum length the commit text will be truncated to.",
-              "default": 24,
-              "type": [
-                "integer",
-                "null"
-              ],
-              "format": "uint",
-              "minimum": 0.0
-            },
-            "surround_with_quotes": {
-              "description": "Do not render quotes around the description.",
-              "default": true,
-              "type": "boolean"
-            },
             "type": {
               "type": "string",
-              "enum": [
-                "Commit"
-              ]
+              "const": "Commit"
             }
-          }
+          },
+          "$ref": "#/$defs/Commit",
+          "required": [
+            "type"
+          ]
         },
         {
-          "description": "Prints a warning if the working copy contains any conflicts, is divergent or hidden",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
-            "conflict": {
-              "description": "Controls how the conflict warning will be rendered.",
-              "default": {
-                "bg_color": null,
-                "color": "Red",
-                "disabled": false,
-                "text": "(CONFLICT)"
-              },
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Status"
-                }
-              ]
-            },
-            "divergent": {
-              "description": "Controls how the divergence warning will be rendered.",
-              "default": {
-                "bg_color": null,
-                "color": "Cyan",
-                "disabled": false,
-                "text": "(DIVERGENT)"
-              },
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Status"
-                }
-              ]
-            },
-            "empty": {
-              "description": "Controls how the divergence warning will be rendered.",
-              "default": {
-                "bg_color": null,
-                "color": "Yellow",
-                "disabled": false,
-                "text": "(EMPTY)"
-              },
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Status"
-                }
-              ]
-            },
-            "hidden": {
-              "description": "Controls how the immutable warning will be rendered.",
-              "default": {
-                "bg_color": null,
-                "color": "Yellow",
-                "disabled": false,
-                "text": "(HIDDEN)"
-              },
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Status"
-                }
-              ]
-            },
-            "immutable": {
-              "description": "Controls how the empty warning will be rendered.",
-              "default": {
-                "bg_color": null,
-                "color": "Yellow",
-                "disabled": false,
-                "text": "(IMMUTABLE)"
-              },
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Status"
-                }
-              ]
-            },
-            "separator": {
-              "description": "Text that will be printed between each warning.",
-              "default": " ",
-              "type": "string"
-            },
             "type": {
               "type": "string",
-              "enum": [
-                "State"
-              ]
+              "const": "State"
             }
-          }
+          },
+          "$ref": "#/$defs/State",
+          "required": [
+            "type"
+          ]
         },
         {
-          "description": "Prints the amount of changes in the working copy.",
           "type": "object",
-          "required": [
-            "type"
-          ],
           "properties": {
-            "added_lines": {
-              "description": "Controls how the number of added lines is rendered.",
-              "default": {
-                "bg_color": null,
-                "color": "Green",
-                "prefix": "+",
-                "suffix": ""
-              },
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Metric"
-                }
-              ]
-            },
-            "bg_color": {
-              "description": "Background Color",
-              "anyOf": [
-                {
-                  "$ref": "#/definitions/Color"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "changed_files": {
-              "description": "Controls how the number of changed files is rendered.",
-              "default": {
-                "bg_color": null,
-                "color": "Cyan",
-                "prefix": "",
-                "suffix": ""
-              },
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Metric"
-                }
-              ]
-            },
-            "color": {
-              "description": "Text Color",
-              "anyOf": [
-                {
-                  "$ref": "#/definitions/Color"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "removed_lines": {
-              "description": "Controls how the number of removed lines is rendered.",
-              "default": {
-                "bg_color": null,
-                "color": "Red",
-                "prefix": "-",
-                "suffix": ""
-              },
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Metric"
-                }
-              ]
-            },
-            "template": {
-              "description": "Controls how the changes are rendered. Use {added}, {removed} and {changed} to render the number of changes.",
-              "default": "[{changed} {added}{removed}]",
-              "type": "string"
-            },
             "type": {
               "type": "string",
-              "enum": [
-                "Metrics"
-              ]
+              "const": "Metrics"
             }
-          }
+          },
+          "$ref": "#/$defs/Metrics",
+          "required": [
+            "type"
+          ]
         }
       ]
     },
+    "State": {
+      "description": "Prints a warning if the working copy contains any conflicts, is divergent, hidden, immutable, or empty.",
+      "type": "object",
+      "properties": {
+        "conflict": {
+          "description": "Controls how the conflict warning will be rendered.",
+          "$ref": "#/$defs/Status",
+          "default": {
+            "bg_color": null,
+            "blink": null,
+            "bold": null,
+            "color": "Red",
+            "dimmed": null,
+            "disabled": false,
+            "hidden": null,
+            "italic": null,
+            "reverse": null,
+            "strikethrough": null,
+            "text": "(CONFLICT)",
+            "underline": null
+          }
+        },
+        "divergent": {
+          "description": "Controls how the divergence warning will be rendered.",
+          "$ref": "#/$defs/Status",
+          "default": {
+            "bg_color": null,
+            "blink": null,
+            "bold": null,
+            "color": "Cyan",
+            "dimmed": null,
+            "disabled": false,
+            "hidden": null,
+            "italic": null,
+            "reverse": null,
+            "strikethrough": null,
+            "text": "(DIVERGENT)",
+            "underline": null
+          }
+        },
+        "empty": {
+          "description": "Controls how the empty warning will be rendered.",
+          "$ref": "#/$defs/Status",
+          "default": {
+            "bg_color": null,
+            "blink": null,
+            "bold": null,
+            "color": "Yellow",
+            "dimmed": null,
+            "disabled": false,
+            "hidden": null,
+            "italic": null,
+            "reverse": null,
+            "strikethrough": null,
+            "text": "(EMPTY)",
+            "underline": null
+          }
+        },
+        "hidden": {
+          "description": "Controls how the hidden warning will be rendered.",
+          "$ref": "#/$defs/Status",
+          "default": {
+            "bg_color": null,
+            "blink": null,
+            "bold": null,
+            "color": "Yellow",
+            "dimmed": null,
+            "disabled": false,
+            "hidden": null,
+            "italic": null,
+            "reverse": null,
+            "strikethrough": null,
+            "text": "(HIDDEN)",
+            "underline": null
+          }
+        },
+        "immutable": {
+          "description": "Controls how the immutable warning will be rendered.",
+          "$ref": "#/$defs/Status",
+          "default": {
+            "bg_color": null,
+            "blink": null,
+            "bold": null,
+            "color": "Yellow",
+            "dimmed": null,
+            "disabled": false,
+            "hidden": null,
+            "italic": null,
+            "reverse": null,
+            "strikethrough": null,
+            "text": "(IMMUTABLE)",
+            "underline": null
+          }
+        },
+        "separator": {
+          "description": "Text that will be printed between each warning.",
+          "type": "string",
+          "default": " "
+        }
+      }
+    },
     "Status": {
       "type": "object",
-      "required": [
-        "text"
-      ],
       "properties": {
         "bg_color": {
           "description": "Background Color",
           "anyOf": [
             {
-              "$ref": "#/definitions/Color"
+              "$ref": "#/$defs/Color"
             },
             {
               "type": "null"
             }
           ]
+        },
+        "blink": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "bold": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
         },
         "color": {
           "description": "Text Color",
           "anyOf": [
             {
-              "$ref": "#/definitions/Color"
+              "$ref": "#/$defs/Color"
             },
             {
               "type": "null"
             }
           ]
         },
+        "dimmed": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
         "disabled": {
           "description": "Do not render this warning.",
-          "default": false,
-          "type": "boolean"
+          "type": "boolean",
+          "default": false
+        },
+        "hidden": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "italic": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "reverse": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "strikethrough": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
         },
         "text": {
           "description": "The text that should be printed when the working copy has the given state.",
           "type": "string"
+        },
+        "underline": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "text"
+      ]
+    },
+    "Symbol": {
+      "description": "Prints an indicator.",
+      "type": "object",
+      "properties": {
+        "bg_color": {
+          "description": "Background Color",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "blink": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "bold": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "color": {
+          "description": "Text Color",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dimmed": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "hidden": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "italic": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "reverse": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "strikethrough": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "symbol": {
+          "description": "Text that will be rendered between each bookmark.",
+          "type": "string",
+          "default": "󱗆 "
+        },
+        "underline": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
         }
       }
     }

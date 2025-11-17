@@ -23,8 +23,9 @@ impl Symbol {
         io: &mut impl Write,
         _data: &crate::JJData,
         module_separator: &str,
+        prev_style: &mut Option<nu_ansi_term::Style>,
     ) -> Result<(), CommandError> {
-        self.style.print(io, default_style())?;
+        self.style.print(io, default_style(), prev_style)?;
 
         write!(io, "{}{module_separator}", self.symbol)?;
         Ok(())
