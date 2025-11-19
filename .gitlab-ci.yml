@@ -1,8 +1,6 @@
 # Official language image. Look for the different tagged releases at:
 # https://hub.docker.com/r/library/rust/tags/
-image: "rust:latest"
-variables:
-  CI: true
+image: "$CI_REGISTRY/lanastara_foss/ci_images:latest"
 
 .before_script: &global_before |-
   mkdir -p target/registry
@@ -89,7 +87,6 @@ audit:audit:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   before_script:
     - *global_before
-    - cargo install --locked cargo-deny
   script:
     - rustc --version && cargo --version
     - cargo deny --version
@@ -103,7 +100,6 @@ audit:fmt:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   before_script:
     - *global_before
-    - rustup component add rustfmt
   script:
     - rustc --version && cargo --version
     - cargo fmt --check
@@ -116,8 +112,6 @@ audit:clippy:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   before_script:
     - *global_before
-    - rustup component add clippy
-    - cargo install gitlab-report
   script:
     - rustc --version && cargo --version
     - cargo clippy --message-format=json | gitlab-report -p clippy > gl-code-quality-report.json
