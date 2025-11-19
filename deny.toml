@@ -96,13 +96,13 @@ allow = [
   "Unicode-3.0",
   "BSD-3-Clause",
   "BSD-2-Clause",
-  "0BSD",
+  # "0BSD",
   "Zlib",
   "MPL-2.0",
   "CC0-1.0",
   "Unicode-DFS-2016",
   "WTFPL",
-  "ISC",
+  # "ISC",
   #"Apache-2.0 WITH LLVM-exception",
 ]
 # The confidence threshold for detecting a license from license text.
