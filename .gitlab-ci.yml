@@ -29,7 +29,7 @@ test:cargo:
     - *global_before
   script:
     - rustc --version && cargo --version  # Print version info for debugging
-    - cargo test --workspace --verbose
+    - cargo test --workspace
 
 # Use a third party library to generate gitlab junit reports
 test:junit-report:
