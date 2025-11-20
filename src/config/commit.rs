@@ -1,9 +1,12 @@
 use std::io::Write;
 
 use jj_cli::command_error::CommandError;
+use jj_lib::id_prefix::IdPrefixIndex;
 #[cfg(feature = "json-schema")]
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+
+use crate::config::util::Color;
 
 use super::util::Style;
 
@@ -31,6 +34,34 @@ pub struct Commit {
     /// Render quotes around the description.
     #[serde(default = "default_surround_with_quotes")]
     surround_with_quotes: bool,
+    /// Controls if and how the Change Id should be shown
+    change: Option<Style>,
+    /// Controls if and how the Commit Id should be shown
+    commit: Option<Style>,
+    /// Controls how the non unique part of  Ids should be shown
+    #[serde(default = "default_non_unique_style")]
+    non_unique: Style,
+}
+
+fn default_non_unique_style() -> Style {
+    Style {
+        color: Some(Color::Black),
+        ..Default::default()
+    }
+}
+
+fn default_unique_change_style() -> Style {
+    Style {
+        color: Some(Color::Magenta),
+        ..Default::default()
+    }
+}
+
+fn default_unique_commit_style() -> Style {
+    Style {
+        color: Some(Color::Blue),
+        ..Default::default()
+    }
 }
 
 fn default_previous_message_symbol() -> char {
@@ -56,6 +87,9 @@ impl Default for Commit {
             empty_text: default_empty_text(),
             surround_with_quotes: true,
             previous_message_symbol: default_previous_message_symbol(),
+            commit: None,
+            change: None,
+            non_unique: default_non_unique_style(),
         }
     }
 }
@@ -68,10 +102,42 @@ impl Commit {
         module_separator: &str,
         prev_style: &mut Option<nu_ansi_term::Style>,
     ) -> Result<(), CommandError> {
+        let mut first = true;
+        if let (Some(change), Some((change_id, change_idx))) =
+            (&self.change, &data.commit.change_id)
+        {
+            change.print(io, default_unique_change_style(), prev_style)?;
+            let short_change_id = &change_id.to_string()[..8];
+            let (unique, non_unique) = short_change_id.split_at(*change_idx);
+            write!(io, "{unique}")?;
+            self.non_unique
+                .print(io, default_non_unique_style(), prev_style)?;
+            write!(io, "{non_unique}")?;
+            first = false;
+        }
+        if let (Some(commit), Some((commit_id, commit_idx))) =
+            (&self.commit, &data.commit.commit_id)
+        {
+            if !first {
+                write!(io, " ")?;
+            }
+            commit.print(io, default_unique_commit_style(), prev_style)?;
+            let short_commit_id = &commit_id.to_string()[..8];
+            let (unique, non_unique) = short_commit_id.split_at(*commit_idx);
+            write!(io, "{unique}")?;
+            self.non_unique
+                .print(io, default_non_unique_style(), prev_style)?;
+            write!(io, "{non_unique}")?;
+            first = false;
+        }
+
         let Some(desc) = data.commit.desc.as_ref() else {
             return Ok(());
         };
 
+        if !first {
+            write!(io, " ")?;
+        }
         let first_line = desc
             .split_once(['\r', '\n'])
             .map(|(line, _rest)| line)
@@ -101,6 +167,67 @@ impl Commit {
         Ok(())
     }
     pub(crate) fn parse(
+        &self,
+        command_helper: &jj_cli::cli_util::CommandHelper,
+        state: &mut crate::State,
+        data: &mut crate::JJData,
+        global: &super::GlobalConfig,
+    ) -> Result<(), CommandError> {
+        self.resolve_desc(command_helper, state, data, global)?;
+
+        if self.commit.is_some() {
+            self.resolve_commit_id(command_helper, state, data, global)?;
+        }
+        if self.change.is_some() {
+            self.resolve_change_id(command_helper, state, data, global)?;
+        }
+
+        Ok(())
+    }
+
+    fn resolve_commit_id(
+        &self,
+        command_helper: &jj_cli::cli_util::CommandHelper,
+        state: &mut crate::State,
+        data: &mut crate::JJData,
+        _global: &super::GlobalConfig,
+    ) -> Result<(), CommandError> {
+        if data.commit.commit_id.is_some() {
+            return Ok(());
+        }
+        let repo = state.repo(command_helper)?;
+        let Some(commit) = state.commit(command_helper)? else {
+            return Ok(());
+        };
+        let commit_id = commit.id().clone();
+        let commit_idx =
+            IdPrefixIndex::empty().shortest_commit_prefix_len(repo.as_ref(), &commit_id)?;
+        data.commit.commit_id = Some((commit_id, commit_idx));
+        Ok(())
+    }
+
+    fn resolve_change_id(
+        &self,
+        command_helper: &jj_cli::cli_util::CommandHelper,
+        state: &mut crate::State,
+        data: &mut crate::JJData,
+        _global: &super::GlobalConfig,
+    ) -> Result<(), CommandError> {
+        if data.commit.change_id.is_some() {
+            return Ok(());
+        }
+        let repo = state.repo(command_helper)?;
+        let Some(commit) = state.commit(command_helper)? else {
+            return Ok(());
+        };
+        let change_id = commit.change_id().clone();
+        let change_idx =
+            IdPrefixIndex::empty().shortest_change_prefix_len(repo.as_ref(), &change_id)?;
+        data.commit.change_id = Some((change_id, change_idx));
+        Ok(())
+    }
+
+    fn resolve_desc(
         &self,
         command_helper: &jj_cli::cli_util::CommandHelper,
         state: &mut crate::State,

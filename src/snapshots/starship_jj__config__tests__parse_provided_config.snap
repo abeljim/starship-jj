@@ -65,6 +65,54 @@ Config {
                     },
                 },
                 surround_with_quotes: true,
+                change: Some(
+                    Style {
+                        color: None,
+                        bg_color: None,
+                        attributes: TextAttributess {
+                            bold: None,
+                            dimmed: None,
+                            italic: None,
+                            underline: None,
+                            blink: None,
+                            reverse: None,
+                            hidden: None,
+                            strikethrough: None,
+                        },
+                    },
+                ),
+                commit: Some(
+                    Style {
+                        color: None,
+                        bg_color: None,
+                        attributes: TextAttributess {
+                            bold: None,
+                            dimmed: None,
+                            italic: None,
+                            underline: None,
+                            blink: None,
+                            reverse: None,
+                            hidden: None,
+                            strikethrough: None,
+                        },
+                    },
+                ),
+                non_unique: Style {
+                    color: Some(
+                        Black,
+                    ),
+                    bg_color: None,
+                    attributes: TextAttributess {
+                        bold: None,
+                        dimmed: None,
+                        italic: None,
+                        underline: None,
+                        blink: None,
+                        reverse: None,
+                        hidden: None,
+                        strikethrough: None,
+                    },
+                },
             },
         ),
         State(

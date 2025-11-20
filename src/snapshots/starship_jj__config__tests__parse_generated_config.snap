@@ -86,6 +86,24 @@ Config {
                     },
                 },
                 surround_with_quotes: true,
+                change: None,
+                commit: None,
+                non_unique: Style {
+                    color: Some(
+                        Black,
+                    ),
+                    bg_color: None,
+                    attributes: TextAttributess {
+                        bold: None,
+                        dimmed: None,
+                        italic: None,
+                        underline: None,
+                        blink: None,
+                        reverse: None,
+                        hidden: None,
+                        strikethrough: None,
+                    },
+                },
             },
         ),
         State(

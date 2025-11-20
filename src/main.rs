@@ -14,7 +14,11 @@ use jj_cli::{
     command_error::{CommandError, user_error},
     ui::Ui,
 };
-use jj_lib::{backend::CommitId, commit::Commit, view::View};
+use jj_lib::{
+    backend::{ChangeId, CommitId},
+    commit::Commit,
+    view::View,
+};
 
 pub use state::State;
 use unicode_width::UnicodeWidthStr as _;
@@ -90,6 +94,8 @@ struct CommitData {
     warnings: CommitWarnings,
     diff: Option<CommitDiff>,
     ahead: bool,
+    commit_id: Option<(CommitId, usize)>,
+    change_id: Option<(ChangeId, usize)>,
 }
 
 #[derive(Default)]

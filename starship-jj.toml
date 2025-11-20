@@ -68,6 +68,14 @@ max_length = 24
 # A prefix that will be printed when the current commit is empty and the previous commit is shown
 previous_message_symbol="⇣"
 
+# Controls if and how the Change Id should be shown
+[module.change]
+# fg = "magenta"
+
+# Controls if and how the Commit Id should be shown
+[module.commit]
+# fg = "blue"
+
 [[module]]
 # Prints a warning if the working copy contains any conflicts, is divergent, hidden, immutable, or empty.
 type = "State"

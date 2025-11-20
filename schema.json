@@ -52,12 +52,26 @@
           "bg_color": null,
           "blink": null,
           "bold": null,
+          "change": null,
           "color": null,
+          "commit": null,
           "dimmed": null,
           "empty_text": "(no description set)",
           "hidden": null,
           "italic": null,
           "max_length": 24,
+          "non_unique": {
+            "bg_color": null,
+            "blink": null,
+            "bold": null,
+            "color": "Black",
+            "dimmed": null,
+            "hidden": null,
+            "italic": null,
+            "reverse": null,
+            "strikethrough": null,
+            "underline": null
+          },
           "previous_message_symbol": "⇣",
           "reverse": null,
           "show_previous_if_empty": false,
@@ -461,11 +475,33 @@
           ],
           "default": null
         },
+        "change": {
+          "description": "Controls if and how the Change Id should be shown",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Style"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "color": {
           "description": "Text Color",
           "anyOf": [
             {
               "$ref": "#/$defs/Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "commit": {
+          "description": "Controls if and how the Commit Id should be shown",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Style"
             },
             {
               "type": "null"
@@ -508,6 +544,22 @@
           "default": 24,
           "minimum": 0
         },
+        "non_unique": {
+          "description": "Controls how the non unique part of  Ids should be shown",
+          "$ref": "#/$defs/Style",
+          "default": {
+            "bg_color": null,
+            "blink": null,
+            "bold": null,
+            "color": "Black",
+            "dimmed": null,
+            "hidden": null,
+            "italic": null,
+            "reverse": null,
+            "strikethrough": null,
+            "underline": null
+          }
+        },
         "previous_message_symbol": {
           "description": "A prefix that will be printed when the current commit is empty and the previous commit is shown\nusually becasue of Squash Workflow",
           "type": "string",
@@ -524,7 +576,8 @@
         },
         "show_previous_if_empty": {
           "description": "Show the previous commits description in case current is empty\nThis will also print the previous_message_symbol",
-          "type": "boolean"
+          "type": "boolean",
+          "default": false
         },
         "strikethrough": {
           "type": [
@@ -545,10 +598,7 @@
           ],
           "default": null
         }
-      },
-      "required": [
-        "show_previous_if_empty"
-      ]
+      }
     },
     "IgnoreEmpty": {
       "oneOf": [
@@ -1068,6 +1118,89 @@
       "required": [
         "text"
       ]
+    },
+    "Style": {
+      "type": "object",
+      "properties": {
+        "bg_color": {
+          "description": "Background Color",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "blink": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "bold": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "color": {
+          "description": "Text Color",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dimmed": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "hidden": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "italic": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "reverse": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "strikethrough": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "underline": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        }
+      }
     },
     "Symbol": {
       "description": "Prints an indicator.",
