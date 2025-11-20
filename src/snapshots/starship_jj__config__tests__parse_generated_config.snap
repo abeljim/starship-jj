@@ -1,6 +1,6 @@
 ---
 source: src/config.rs
-assertion_line: 228
+assertion_line: 229
 expression: c
 ---
 Config {
@@ -60,13 +60,16 @@ Config {
                 max_bookmarks: None,
                 max_length: None,
                 surround_with_quotes: true,
+                ignore_empty_commits: None,
             },
         ),
         Commit(
             Commit {
+                previous_message_symbol: '⇣',
                 max_length: Some(
                     24,
                 ),
+                show_previous_if_empty: false,
                 empty_text: "(no description set)",
                 style: Style {
                     color: None,

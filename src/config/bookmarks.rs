@@ -4,12 +4,9 @@ use std::{
 };
 
 use jj_cli::command_error::CommandError;
-use jj_lib::repo::Repo;
 #[cfg(feature = "json-schema")]
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-
-use crate::config::Workflow;
 
 use super::util::{Color, Style};
 
@@ -33,6 +30,24 @@ pub struct Bookmarks {
     /// Do not render quotes around bookmark names.
     #[serde(default = "default_surround_with_quotes")]
     surround_with_quotes: bool,
+    /// Ignore Commits without a description.
+    #[serde(default = "default_ignore_empty_commits")]
+    ignore_empty_commits: IgnoreEmpty,
+}
+
+#[cfg_attr(feature = "json-schema", derive(JsonSchema))]
+#[derive(Deserialize, Serialize, Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+pub enum IgnoreEmpty {
+    /// None=> [default] Count all commits even ones without description
+    None,
+    /// Current => Don't count the current commit if it's description is empty
+    Current,
+    /// All => Don't count any commits without description
+    All,
+}
+
+fn default_ignore_empty_commits() -> IgnoreEmpty {
+    IgnoreEmpty::None
 }
 
 fn default_style() -> Style {
@@ -63,6 +78,7 @@ impl Default for Bookmarks {
             separator: default_separator(),
             max_length: Default::default(),
             surround_with_quotes: true,
+            ignore_empty_commits: default_ignore_empty_commits(),
         }
     }
 }
@@ -112,9 +128,6 @@ impl Bookmarks {
                 }
                 crate::print_ansi_truncated(self.max_length, io, name, self.surround_with_quotes)?;
 
-                let behind =
-                    behind.saturating_sub(if data.bookmarks.ignore_commit { 1 } else { 0 });
-
                 if behind != 0 {
                     match self.behind_symbol {
                         Some(s) => write!(io, "{s}{behind}")?,
@@ -145,27 +158,23 @@ impl Bookmarks {
 
         let repo = state.repo(command_helper)?;
         let view = repo.view();
-        let store = repo.store();
         let Some(commit) = state.commit(command_helper)? else {
             return Ok(());
         };
 
-        let ignore_commit =
-            commit.description().is_empty() && global.preferred_workflow == Workflow::Squash;
-
         crate::find_parent_bookmarks(
             commit,
+            0,
             0,
             &global.bookmarks,
             &mut bookmarks,
             view,
-            store,
             &mut HashSet::new(),
+            self.ignore_empty_commits,
         )?;
 
         data.bookmarks = crate::BookmarkData {
             bookmarks: Some(bookmarks),
-            ignore_commit,
         };
         Ok(())
     }

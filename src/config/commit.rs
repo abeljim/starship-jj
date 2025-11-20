@@ -5,8 +5,6 @@ use jj_cli::command_error::CommandError;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use crate::config::Workflow;
-
 use super::util::Style;
 
 /// Prints the working copy's commit text.
@@ -20,6 +18,9 @@ pub struct Commit {
     /// Maximum length the commit text will be truncated to.
     #[serde(default = "default_max_length")]
     max_length: Option<usize>,
+    /// Show the previous commits description in case current is empty
+    /// This will also print the previous_message_symbol
+    show_previous_if_empty: bool,
     /// The text that should be printed when the current revision has no description yet.
     #[serde(default = "default_empty_text")]
     empty_text: String,
@@ -48,6 +49,7 @@ fn default_surround_with_quotes() -> bool {
 impl Default for Commit {
     fn default() -> Self {
         Self {
+            show_previous_if_empty: false,
             style: Default::default(),
             max_length: default_max_length(),
             empty_text: default_empty_text(),
@@ -80,7 +82,7 @@ impl Commit {
             crate::print_ansi_truncated(
                 self.max_length,
                 io,
-                first_line.as_ref(),
+                first_line,
                 self.surround_with_quotes,
             )?;
         } else {
@@ -102,7 +104,7 @@ impl Commit {
         command_helper: &jj_cli::cli_util::CommandHelper,
         state: &mut crate::State,
         data: &mut crate::JJData,
-        global: &super::GlobalConfig,
+        _global: &super::GlobalConfig,
     ) -> Result<(), CommandError> {
         if data.commit.desc.is_some() {
             return Ok(());
@@ -112,7 +114,7 @@ impl Commit {
         };
 
         let description = commit.description().to_string();
-        if description.is_empty() && global.preferred_workflow == Workflow::Squash {
+        if description.is_empty() && self.show_previous_if_empty {
             let parents = state.parent_commits(command_helper)?;
             if parents.len() != 1 {
                 return Ok(());

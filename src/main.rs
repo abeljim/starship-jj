@@ -3,7 +3,6 @@ use std::{
     io::Write,
     path::PathBuf,
     process::ExitCode,
-    sync::Arc,
 };
 
 use ::config::Environment;
@@ -15,10 +14,12 @@ use jj_cli::{
     command_error::{CommandError, user_error},
     ui::Ui,
 };
-use jj_lib::{backend::CommitId, commit::Commit, store::Store, view::View};
+use jj_lib::{backend::CommitId, commit::Commit, view::View};
 
 pub use state::State;
 use unicode_width::UnicodeWidthStr as _;
+
+use crate::config::IgnoreEmpty;
 
 mod args;
 mod config;
@@ -81,7 +82,6 @@ struct JJData {
 #[derive(Default)]
 struct BookmarkData {
     bookmarks: Option<BTreeMap<String, usize>>,
-    ignore_commit: bool,
 }
 
 #[derive(Default)]
@@ -168,15 +168,18 @@ fn print_prompt(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn find_parent_bookmarks(
     commit: &Commit,
     depth: usize,
+    distance: usize,
     config: &BookmarkConfig,
     bookmarks: &mut BTreeMap<String, usize>,
     view: &View,
-    store: &Arc<Store>,
     visited: &mut HashSet<CommitId>,
+    ignore_emtpy_commits: IgnoreEmpty,
 ) -> Result<(), CommandError> {
+    let ignore = (ignore_emtpy_commits != IgnoreEmpty::None) && commit.description().is_empty();
     if !visited.insert(commit.id().clone()) {
         return Ok(());
     }
@@ -199,11 +202,11 @@ fn find_parent_bookmarks(
             bookmarks
                 .entry(bookmark)
                 .and_modify(|v| {
-                    if *v > depth {
-                        *v = depth
+                    if *v > distance {
+                        *v = distance
                     }
                 })
-                .or_insert(depth);
+                .or_insert(distance);
         }
         return Ok(());
     }
@@ -214,7 +217,22 @@ fn find_parent_bookmarks(
 
     for p in commit.parents() {
         let p = p?;
-        find_parent_bookmarks(&p, depth + 1, config, bookmarks, view, store, visited)?;
+
+        let distance = if ignore { distance } else { distance + 1 };
+        find_parent_bookmarks(
+            &p,
+            depth + 1,
+            distance,
+            config,
+            bookmarks,
+            view,
+            visited,
+            if ignore_emtpy_commits == IgnoreEmpty::Current {
+                IgnoreEmpty::None
+            } else {
+                ignore_emtpy_commits
+            },
+        )?;
     }
     Ok(())
 }
