@@ -115,6 +115,11 @@ struct CommitDiff {
     lines_added: usize,
     lines_removed: usize,
 }
+impl CommitDiff {
+    fn is_empty(&self) -> bool {
+        self.files_changed == 0 && self.lines_added == 0 && self.lines_removed == 0
+    }
+}
 
 fn print_prompt(
     command_helper: &CommandHelper,

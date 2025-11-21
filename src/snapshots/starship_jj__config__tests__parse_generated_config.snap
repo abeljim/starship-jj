@@ -214,6 +214,7 @@ Config {
         Metrics(
             Metrics {
                 template: "[{changed} {added}{removed}]",
+                hide_if_empty: false,
                 changed_files: Metric {
                     prefix: "",
                     suffix: "",

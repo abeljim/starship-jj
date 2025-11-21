@@ -15,6 +15,10 @@ pub struct Metrics {
     #[serde(default = "default_template")]
     template: String,
 
+    /// Hide the metrict module in case there are no changes [0 +0-0]
+    #[serde(default)]
+    hide_if_empty: bool,
+
     // added_files: Style,
     // removed_files: Style,
     /// Controls how the number of changed files is rendered.
@@ -36,6 +40,7 @@ pub struct Metrics {
 impl Default for Metrics {
     fn default() -> Self {
         Self {
+            hide_if_empty: false,
             style: default_style(),
             template: default_template(),
             changed_files: default_changed_files(),
@@ -147,6 +152,9 @@ impl Metrics {
         let Some(diff) = &data.commit.diff else {
             return Ok(());
         };
+        if self.hide_if_empty && diff.is_empty() {
+            return Ok(());
+        }
 
         let context = Context {
             added: self.added_lines.format(

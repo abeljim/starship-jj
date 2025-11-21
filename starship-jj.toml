@@ -110,6 +110,8 @@ color = "Yellow"
 [[module]]
 # Prints the amount of changes in the working copy.
 type = "Metrics"
+# Hide the metrict module in case there are no changes [0 +0-0]
+# hide_if_empty = true
 color = "Magenta"
 # bg_color = "Yellow"
 # Controls how the changes are rendered. Use {added}, {removed} and {changed} to render the number of changes.
