@@ -228,4 +228,57 @@ mod tests {
 
         assert_debug_snapshot!(c);
     }
+
+    #[test]
+    fn parse_minimal_config1() {
+        let minimal = r#""#;
+        let _c: Config = toml::from_str(minimal).unwrap();
+    }
+    #[test]
+    fn parse_minimal_config2() {
+        let minimal = r#"
+[[module]]
+type = "Bookmarks"
+
+[[module]]
+type = "Commit"
+
+[[module]]
+type = "State"
+
+[[module]]
+type = "Metrics"
+        "#;
+        let _c: Config = toml::from_str(minimal).unwrap();
+    }
+    #[test]
+    fn parse_minimal_config3() {
+        let minimal = r#"
+[[module]]
+type = "Bookmarks"
+
+[[module]]
+type = "Commit"
+
+[[module]]
+type = "State"
+[module.conflict]
+text = "(CONFLICT)"
+[module.divergent]
+text = "(DIVERGENT)"
+[module.hidden]
+text = "(HIDDEN)"
+[module.immutable]
+text = "(IMMUTABLE)"
+[module.empty]
+text = "(EMPTY)"
+
+[[module]]
+type = "Metrics"
+[module.changed_files]
+[module.added_lines]
+[module.removed_lines]
+        "#;
+        let _c: Config = toml::from_str(minimal).unwrap();
+    }
 }
