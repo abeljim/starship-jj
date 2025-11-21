@@ -20,6 +20,7 @@ pub struct Commit {
     max_length: Option<usize>,
     /// Show the previous commits description in case current is empty
     /// This will also print the previous_message_symbol
+    #[serde(default)]
     show_previous_if_empty: bool,
     /// The text that should be printed when the current revision has no description yet.
     #[serde(default = "default_empty_text")]

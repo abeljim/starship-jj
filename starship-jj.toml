@@ -37,7 +37,7 @@ behind_symbol = "⇡"
 # None=> [default] Count all commits even ones without description
 # Current => Don't count the current commit if it's description is empty
 # All => Don't count any commits without description
-ignore_empty_commits = "None"
+# ignore_empty_commits = "None"
 # Maximum amount of bookmarks that will be rendered.
 # max_bookmarks = 1
 # Maximum length the bookmark name will be truncated to.
@@ -63,7 +63,7 @@ max_length = 24
 
 # Show the previous commits description in case current is empty
 # This will also print the previous_message_symbol
-show_previous_if_empty= false
+# show_previous_if_empty= false
 
 # A prefix that will be printed when the current commit is empty and the previous commit is shown
 previous_message_symbol="⇣"
