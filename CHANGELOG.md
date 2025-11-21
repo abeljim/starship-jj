@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
+## [0.7.0](https://gitlab.com/lanastara_foss/starship-jj/-/compare/0.6.1..0.7.0) - 2025-11-21
+
+### 🚀 Features
+
+- **(ci)** add ci environment variable- ([!38](https://gitlab.com/lanastara_foss/starship-jj/-/merge_requests/38)) - Lilly Mannhal
+- **(ci)** use pre built images- ([c4e86c6](https://gitlab.com/lanastara_foss/starship-jj/-/commit/c4e86c62fed481bcb97cfb806d124aae37eedfd5)) - Lilly Mannhal
+- add text attributes- ([ec250bc](https://gitlab.com/lanastara_foss/starship-jj/-/commit/ec250bc7fdc2e2d70639be814e7f0fc0f6fbaa80)) - Lilly Mannhal
+- workflow setting- ([46d146e](https://gitlab.com/lanastara_foss/starship-jj/-/commit/46d146e7ab095a19937eee099e1094d937151ff0)) - Lilly Mannhal
+- control displays of 'empty' commits separately- ([9dd9241](https://gitlab.com/lanastara_foss/starship-jj/-/commit/9dd924143e5c04e14d84be9980eeaecd766092be)) - Lilly Mannhal
+- ability to render change and commit ids- ([!43](https://gitlab.com/lanastara_foss/starship-jj/-/merge_requests/43)) - Lilly Mannhal
+- allow hiding metrics for empty commits- ([!44](https://gitlab.com/lanastara_foss/starship-jj/-/merge_requests/44)) - Lilly Mannhal
+
+### 🐛 Bug Fixes
+
+- **(audit)** remove indirect dependency on json5- ([!39](https://gitlab.com/lanastara_foss/starship-jj/-/merge_requests/39)) - Lilly Mannhal
+- **(ci)** removed unneccesary verbose from cargo test- ([!40](https://gitlab.com/lanastara_foss/starship-jj/-/merge_requests/40)) - Lilly Mannhal
+- missing updated cargo.lock- ([!42](https://gitlab.com/lanastara_foss/starship-jj/-/merge_requests/42)) - Lilly Mannhal
+- error when show_previous_if_empty is missing- ([5481b0d](https://gitlab.com/lanastara_foss/starship-jj/-/commit/5481b0debfbbcf853dc00614e3b5206f410db85b)) - Lilly Mannhal
+
+### 🧪 Testing
+
+- add tests for empty configs- ([!37](https://gitlab.com/lanastara_foss/starship-jj/-/merge_requests/37)) - Lilly Mannhal
 ## [0.6.1](https://gitlab.com/lanastara_foss/starship-jj/-/compare/0.6.0..0.6.1) - 2025-11-14
 
 ### 🐛 Bug Fixes
