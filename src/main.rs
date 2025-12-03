@@ -195,10 +195,29 @@ fn find_parent_bookmarks(
         return Ok(());
     }
 
-    let tmp: Vec<_> = view
+    // Collect local bookmarks for this commit
+    let local_bookmarks: Vec<_> = view
         .local_bookmarks_for_commit(commit.id())
-        .map(|(name, _)| name)
+        .map(|(name, _)| name.as_str())
         .collect();
+
+    // Keep track of local bookmark names to avoid duplicates with remote bookmarks
+    let local_bookmark_names: HashSet<&str> = local_bookmarks.iter().copied().collect();
+
+    let mut tmp: Vec<String> = local_bookmarks.iter().map(|s| s.to_string()).collect();
+
+    // Also collect remote bookmarks (untracked bookmarks like main@origin)
+    // but skip them if a local bookmark with the same name exists
+    for (symbol, remote_ref) in view.all_remote_bookmarks() {
+        if remote_ref.target.added_ids().any(|id| id == commit.id()) {
+            // Skip remote bookmark if we already have a local bookmark with the same name
+            if local_bookmark_names.contains(symbol.name.as_str()) {
+                continue;
+            }
+            // Format as "bookmark@remote"
+            tmp.push(format!("{}@{}", symbol.name.as_str(), symbol.remote.as_str()));
+        }
+    }
 
     if !tmp.is_empty() {
         'bookmark: for bookmark in tmp {
