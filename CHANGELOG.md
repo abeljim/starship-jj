@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
+## [0.9.0] - 2026-01-07
+
+### 🚀 Features
+
+- Change bookmark selection to match `tug` alias behavior - now shows the bookmark that would be moved by the tug command using the revset `latest((heads(::@- & bookmarks())))`
+- If working copy (@) has a bookmark, show that with distance 0; otherwise show the tug target with distance from @
+
 ## [0.7.0](https://gitlab.com/lanastara_foss/starship-jj/-/compare/0.6.1..0.7.0) - 2025-11-21
 
 ### 🚀 Features

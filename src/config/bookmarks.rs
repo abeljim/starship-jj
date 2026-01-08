@@ -1,5 +1,5 @@
 use std::{
-    collections::{BTreeMap, BTreeSet, HashSet},
+    collections::{BTreeMap, BTreeSet},
     io::Write,
 };
 
@@ -154,24 +154,13 @@ impl Bookmarks {
         if data.bookmarks.bookmarks.is_some() {
             return Ok(());
         }
+
+        let workspace_helper = state.workspace_helper(command_helper)?;
+        let view = workspace_helper.repo().view();
+
         let mut bookmarks = BTreeMap::new();
 
-        let repo = state.repo(command_helper)?;
-        let view = repo.view();
-        let Some(commit) = state.commit(command_helper)? else {
-            return Ok(());
-        };
-
-        crate::find_parent_bookmarks(
-            commit,
-            0,
-            0,
-            &global.bookmarks,
-            &mut bookmarks,
-            view,
-            &mut HashSet::new(),
-            self.ignore_empty_commits,
-        )?;
+        crate::find_parent_bookmarks(workspace_helper, view, &global.bookmarks, &mut bookmarks)?;
 
         data.bookmarks = crate::BookmarkData {
             bookmarks: Some(bookmarks),

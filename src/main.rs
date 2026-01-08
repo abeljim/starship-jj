@@ -10,20 +10,18 @@ use args::{ConfigCommands, CustomCommand, StarshipCommands};
 use config::BookmarkConfig;
 use etcetera::BaseStrategy as _;
 use jj_cli::{
-    cli_util::{CliRunner, CommandHelper},
+    cli_util::{CliRunner, CommandHelper, RevisionArg, WorkspaceCommandHelper},
     command_error::{CommandError, user_error},
     ui::Ui,
 };
 use jj_lib::{
     backend::{ChangeId, CommitId},
-    commit::Commit,
+    object_id::ObjectId,
     view::View,
 };
 
 pub use state::State;
 use unicode_width::UnicodeWidthStr as _;
-
-use crate::config::IgnoreEmpty;
 
 mod args;
 mod config;
@@ -179,92 +177,102 @@ fn print_prompt(
     Ok(())
 }
 
-#[allow(clippy::too_many_arguments)]
 fn find_parent_bookmarks(
-    commit: &Commit,
-    depth: usize,
-    distance: usize,
+    workspace_helper: &WorkspaceCommandHelper,
+    view: &View,
     config: &BookmarkConfig,
     bookmarks: &mut BTreeMap<String, usize>,
-    view: &View,
-    visited: &mut HashSet<CommitId>,
-    ignore_emtpy_commits: IgnoreEmpty,
 ) -> Result<(), CommandError> {
-    let ignore = (ignore_emtpy_commits != IgnoreEmpty::None) && commit.description().is_empty();
-    if !visited.insert(commit.id().clone()) {
-        return Ok(());
-    }
+    // First check if @ has bookmarks
+    let wc_revs = workspace_helper
+        .parse_revset(&Ui::null(), &RevisionArg::from("@".to_string()))?;
+    let wc_ids: Vec<CommitId> = wc_revs
+        .evaluate_to_commit_ids()?
+        .collect::<Result<Vec<_>, _>>()?;
 
-    // Collect local bookmarks for this commit
-    let local_bookmarks: Vec<_> = view
-        .local_bookmarks_for_commit(commit.id())
-        .map(|(name, _)| name.as_str())
-        .collect();
-
-    // Keep track of local bookmark names to avoid duplicates with remote bookmarks
-    let local_bookmark_names: HashSet<&str> = local_bookmarks.iter().copied().collect();
-
-    let mut tmp: Vec<String> = local_bookmarks.iter().map(|s| s.to_string()).collect();
-
-    // Also collect remote bookmarks (untracked bookmarks like main@origin)
-    // but skip them if a local bookmark with the same name exists
-    for (symbol, remote_ref) in view.all_remote_bookmarks() {
-        if remote_ref.target.added_ids().any(|id| id == commit.id()) {
-            // Skip remote bookmark if we already have a local bookmark with the same name
-            if local_bookmark_names.contains(symbol.name.as_str()) {
-                continue;
-            }
-            // Format as "bookmark@remote"
-            tmp.push(format!("{}@{}", symbol.name.as_str(), symbol.remote.as_str()));
+    if let Some(wc_id) = wc_ids.first() {
+        // Check for bookmarks on @
+        let has_bookmarks = collect_bookmarks_for_commit(wc_id, view, config, bookmarks, 0);
+        if has_bookmarks {
+            return Ok(());
         }
     }
 
-    if !tmp.is_empty() {
-        'bookmark: for bookmark in tmp {
-            let bookmark = bookmark.as_str();
-            for glob in &config.exclude {
+    // No bookmarks on @, use tug logic to find target
+    let revs = workspace_helper.parse_revset(
+        &Ui::null(),
+        &RevisionArg::from("latest((heads(::@- & bookmarks())))".to_string()),
+    )?;
+
+    let commit_ids: Vec<CommitId> = revs
+        .evaluate_to_commit_ids()?
+        .collect::<Result<Vec<_>, _>>()?;
+
+    if commit_ids.is_empty() {
+        return Ok(());
+    }
+
+    let target_id = &commit_ids[0];
+
+    // Calculate distance from target to @ using revset: count(target::@) - 1
+    // (subtract 1 because target::@ includes target itself)
+    let distance_revs = workspace_helper.parse_revset(
+        &Ui::null(),
+        &RevisionArg::from(format!("{}::@", target_id.hex())),
+    )?;
+    let distance = distance_revs
+        .evaluate_to_commit_ids()?
+        .collect::<Result<Vec<_>, _>>()?
+        .len()
+        .saturating_sub(1);
+
+    collect_bookmarks_for_commit(target_id, view, config, bookmarks, distance);
+
+    Ok(())
+}
+
+/// Helper to collect bookmarks for a commit. Returns true if any bookmarks were found.
+fn collect_bookmarks_for_commit(
+    commit_id: &CommitId,
+    view: &View,
+    config: &BookmarkConfig,
+    bookmarks: &mut BTreeMap<String, usize>,
+    distance: usize,
+) -> bool {
+    let mut found = false;
+
+    // Local bookmarks
+    for (name, _) in view.local_bookmarks_for_commit(commit_id) {
+        let name_str = name.as_str();
+        #[cfg(not(feature = "json-schema"))]
+        let excluded = config.exclude.iter().any(|glob| glob.matches(name_str));
+        #[cfg(feature = "json-schema")]
+        let excluded = false;
+        if !excluded {
+            bookmarks.insert(name_str.to_string(), distance);
+            found = true;
+        }
+    }
+
+    // Remote bookmarks (if no local with same name)
+    let local_names: HashSet<_> = bookmarks.keys().cloned().collect();
+    for (symbol, remote_ref) in view.all_remote_bookmarks() {
+        if remote_ref.target.added_ids().any(|id| id == commit_id) {
+            if !local_names.contains(symbol.name.as_str()) {
+                let name = format!("{}@{}", symbol.name.as_str(), symbol.remote.as_str());
                 #[cfg(not(feature = "json-schema"))]
-                if glob.matches(bookmark) {
-                    continue 'bookmark;
+                let excluded = config.exclude.iter().any(|glob| glob.matches(&name));
+                #[cfg(feature = "json-schema")]
+                let excluded = false;
+                if !excluded {
+                    bookmarks.insert(name, distance);
+                    found = true;
                 }
             }
-            let bookmark = bookmark.to_string();
-            bookmarks
-                .entry(bookmark)
-                .and_modify(|v| {
-                    if *v > distance {
-                        *v = distance
-                    }
-                })
-                .or_insert(distance);
         }
-        return Ok(());
     }
 
-    if depth >= config.search_depth {
-        return Ok(());
-    }
-
-    for p in commit.parents() {
-        let p = p?;
-
-        let distance = if ignore { distance } else { distance + 1 };
-        find_parent_bookmarks(
-            &p,
-            depth + 1,
-            distance,
-            config,
-            bookmarks,
-            view,
-            visited,
-            if ignore_emtpy_commits == IgnoreEmpty::Current {
-                IgnoreEmpty::None
-            } else {
-                ignore_emtpy_commits
-            },
-        )?;
-    }
-    Ok(())
+    found
 }
 
 fn main() -> ExitCode {

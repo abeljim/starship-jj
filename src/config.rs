@@ -16,7 +16,6 @@ use symbol::Symbol;
 use util::Glob;
 
 pub mod util;
-pub use bookmarks::IgnoreEmpty;
 
 mod bookmarks;
 mod commit;
