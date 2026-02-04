@@ -1,6 +1,6 @@
 [package]
 name = "starship-jj"
-version = "1.0.0"
+version = "1.1.0"
 description = "starship plugin for jj"
 resolver = "3"
 edition = "2024"
