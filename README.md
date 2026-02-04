@@ -22,10 +22,22 @@
 
 ## Installation
 
+### Quick Install
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/abeljim/starship-jj/main/install.sh | sh
+```
+
+You can override the install directory with `INSTALL_DIR` or pin a version with `VERSION`:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/abeljim/starship-jj/main/install.sh | INSTALL_DIR=~/.bin VERSION=v0.9.0 sh
+```
+
 ### From Source
 
 ```bash
-  cargo install starship-jj --locked
+cargo install starship-jj --locked
 ```
 
 ## Usage
