@@ -1,6 +1,6 @@
 [package]
 name = "starship-jj"
-version = "0.9.0"
+version = "1.0.0"
 description = "starship plugin for jj"
 resolver = "3"
 edition = "2024"
@@ -9,13 +9,7 @@ license = "MIT"
 readme = "README.md"
 homepage = "https://gitlab.com/lanastara_foss/starship-jj"
 repository = "https://gitlab.com/lanastara_foss/starship-jj"
-keywords = [
-  "command-line-tool",
-  "jj",
-  "jujutsu",
-  "prompt",
-  "starship",
-]
+keywords = ["command-line-tool", "jj", "jujutsu", "prompt", "starship"]
 categories = ["command-line-utilities"]
 
 [lints]
@@ -34,18 +28,21 @@ nu-ansi-term = "0.50"
 etcetera = "0.11.0"
 glob = "0.3"
 dotenvy = "0.15"
-config = {version="0.15", default-features = false, features = ["toml", "convert-case"]}
+config = { version = "0.15", default-features = false, features = [
+  "toml",
+  "convert-case",
+] }
 toml = "0.9"
 pollster = "0.4.0"
 schemars = { version = "1.0.4", optional = true }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", optional = true }
 tinytemplate = "1.2.1"
-const_format="0.2.34"
+const_format = "0.2.34"
 
 [dev-dependencies]
 rstest = "0.26.1"
 insta = "1.43"
 
 [build-dependencies]
-built={version="0.8", features=["git2"]}
+built = { version = "0.8", features = ["git2"] }

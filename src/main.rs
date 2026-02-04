@@ -184,8 +184,8 @@ fn find_parent_bookmarks(
     bookmarks: &mut BTreeMap<String, usize>,
 ) -> Result<(), CommandError> {
     // First check if @ has bookmarks
-    let wc_revs = workspace_helper
-        .parse_revset(&Ui::null(), &RevisionArg::from("@".to_string()))?;
+    let wc_revs =
+        workspace_helper.parse_revset(&Ui::null(), &RevisionArg::from("@".to_string()))?;
     let wc_ids: Vec<CommitId> = wc_revs
         .evaluate_to_commit_ids()?
         .collect::<Result<Vec<_>, _>>()?;
@@ -257,17 +257,17 @@ fn collect_bookmarks_for_commit(
     // Remote bookmarks (if no local with same name)
     let local_names: HashSet<_> = bookmarks.keys().cloned().collect();
     for (symbol, remote_ref) in view.all_remote_bookmarks() {
-        if remote_ref.target.added_ids().any(|id| id == commit_id) {
-            if !local_names.contains(symbol.name.as_str()) {
-                let name = format!("{}@{}", symbol.name.as_str(), symbol.remote.as_str());
-                #[cfg(not(feature = "json-schema"))]
-                let excluded = config.exclude.iter().any(|glob| glob.matches(&name));
-                #[cfg(feature = "json-schema")]
-                let excluded = false;
-                if !excluded {
-                    bookmarks.insert(name, distance);
-                    found = true;
-                }
+        if remote_ref.target.added_ids().any(|id| id == commit_id)
+            && !local_names.contains(symbol.name.as_str())
+        {
+            let name = format!("{}@{}", symbol.name.as_str(), symbol.remote.as_str());
+            #[cfg(not(feature = "json-schema"))]
+            let excluded = config.exclude.iter().any(|glob| glob.matches(&name));
+            #[cfg(feature = "json-schema")]
+            let excluded = false;
+            if !excluded {
+                bookmarks.insert(name, distance);
+                found = true;
             }
         }
     }
