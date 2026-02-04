@@ -1,6 +1,5 @@
 ---
 source: src/config.rs
-assertion_line: 229
 expression: c
 ---
 Config {
@@ -16,7 +15,7 @@ Config {
     modules: [
         Symbol(
             Symbol {
-                symbol: "\u{f418}\u{f15c6} ",
+                symbol: "\u{f418}\u{f15c6}",
                 style: Style {
                     color: Some(
                         Blue,
@@ -59,7 +58,7 @@ Config {
                 ),
                 max_bookmarks: None,
                 max_length: None,
-                surround_with_quotes: true,
+                surround_with_quotes: false,
                 ignore_empty_commits: None,
             },
         ),
@@ -67,10 +66,10 @@ Config {
             Commit {
                 previous_message_symbol: '⇣',
                 max_length: Some(
-                    24,
+                    20,
                 ),
                 show_previous_if_empty: false,
-                empty_text: "(no description set)",
+                empty_text: "\u{f0187}",
                 style: Style {
                     color: None,
                     bg_color: None,
@@ -85,7 +84,7 @@ Config {
                         strikethrough: None,
                     },
                 },
-                surround_with_quotes: true,
+                surround_with_quotes: false,
                 change: None,
                 commit: None,
                 non_unique: Style {

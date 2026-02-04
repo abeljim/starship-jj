@@ -58,5 +58,5 @@ fn default_style() -> Style {
 }
 
 fn default_symbol() -> String {
-    "󱗆 ".to_string()
+    "󱗆".to_string()
 }

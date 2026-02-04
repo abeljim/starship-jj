@@ -66,7 +66,7 @@ fn default_separator() -> String {
 }
 
 fn default_surround_with_quotes() -> bool {
-    true
+    false
 }
 
 impl Default for Bookmarks {
@@ -77,7 +77,7 @@ impl Default for Bookmarks {
             max_bookmarks: Default::default(),
             separator: default_separator(),
             max_length: Default::default(),
-            surround_with_quotes: true,
+            surround_with_quotes: false,
             ignore_empty_commits: default_ignore_empty_commits(),
         }
     }

@@ -68,14 +68,14 @@ fn default_previous_message_symbol() -> char {
     '⇣'
 }
 fn default_max_length() -> Option<usize> {
-    Some(24)
+    Some(20)
 }
 fn default_empty_text() -> String {
-    "(no description set)".to_string()
+    "󰆇".to_string()
 }
 
 fn default_surround_with_quotes() -> bool {
-    true
+    false
 }
 
 impl Default for Commit {
@@ -85,7 +85,7 @@ impl Default for Commit {
             style: Default::default(),
             max_length: default_max_length(),
             empty_text: default_empty_text(),
-            surround_with_quotes: true,
+            surround_with_quotes: false,
             previous_message_symbol: default_previous_message_symbol(),
             commit: None,
             change: None,

@@ -1,6 +1,5 @@
 ---
 source: src/config.rs
-assertion_line: 220
 expression: c
 ---
 Config {
@@ -38,7 +37,7 @@ Config {
                 ),
                 max_bookmarks: None,
                 max_length: None,
-                surround_with_quotes: true,
+                surround_with_quotes: false,
                 ignore_empty_commits: None,
             },
         ),
@@ -49,7 +48,7 @@ Config {
                     24,
                 ),
                 show_previous_if_empty: false,
-                empty_text: "(no description set)",
+                empty_text: "\u{f0187}",
                 style: Style {
                     color: None,
                     bg_color: None,
@@ -64,7 +63,7 @@ Config {
                         strikethrough: None,
                     },
                 },
-                surround_with_quotes: true,
+                surround_with_quotes: false,
                 change: Some(
                     Style {
                         color: None,
