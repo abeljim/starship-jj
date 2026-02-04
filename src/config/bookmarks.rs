@@ -24,6 +24,7 @@ pub struct Bookmarks {
     #[serde(default = "default_behind_symbol")]
     behind_symbol: Option<char>,
     /// Maximum amount of bookmarks that will be rendered.
+    #[serde(default = "default_max_bookmarks")]
     max_bookmarks: Option<usize>,
     /// Maximum length the bookmark name will be truncated to.
     max_length: Option<usize>,
@@ -65,6 +66,10 @@ fn default_separator() -> String {
     " ".to_string()
 }
 
+fn default_max_bookmarks() -> Option<usize> {
+    Some(1)
+}
+
 fn default_surround_with_quotes() -> bool {
     false
 }
@@ -74,7 +79,7 @@ impl Default for Bookmarks {
         Self {
             style: default_style(),
             behind_symbol: default_behind_symbol(),
-            max_bookmarks: Default::default(),
+            max_bookmarks: default_max_bookmarks(),
             separator: default_separator(),
             max_length: Default::default(),
             surround_with_quotes: false,
@@ -118,7 +123,7 @@ impl Bookmarks {
                 if let Some(number) = self.max_bookmarks
                     && counter >= number
                 {
-                    write!(io, "…{module_separator}")?;
+                    write!(io, "{}…{module_separator}", self.separator)?;
                     // set counter to 0 so we don't print the module separator twice
                     counter = 0;
                     break 'outer;
