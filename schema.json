@@ -46,7 +46,19 @@
           "strikethrough": null,
           "surround_with_quotes": true,
           "type": "Bookmarks",
-          "underline": null
+          "underline": null,
+          "untracked": {
+            "bg_color": null,
+            "blink": null,
+            "bold": null,
+            "color": "Cyan",
+            "dimmed": null,
+            "hidden": null,
+            "italic": null,
+            "reverse": null,
+            "strikethrough": null,
+            "underline": null
+          }
         },
         {
           "bg_color": null,
@@ -381,6 +393,22 @@
             "null"
           ],
           "default": null
+        },
+        "untracked": {
+          "description": "Controls how untracked remote bookmarks are rendered.",
+          "$ref": "#/$defs/Style",
+          "default": {
+            "bg_color": null,
+            "blink": null,
+            "bold": null,
+            "color": "Cyan",
+            "dimmed": null,
+            "hidden": null,
+            "italic": null,
+            "reverse": null,
+            "strikethrough": null,
+            "underline": null
+          }
         }
       }
     },

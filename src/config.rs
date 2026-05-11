@@ -13,6 +13,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use state::State;
 use symbol::Symbol;
+#[cfg(not(feature = "json-schema"))]
 use util::Glob;
 
 pub mod util;

@@ -1,9 +1,4 @@
-use std::{
-    collections::{BTreeMap, HashSet},
-    io::Write,
-    path::PathBuf,
-    process::ExitCode,
-};
+use std::{cmp::Ordering, collections::HashSet, io::Write, path::PathBuf, process::ExitCode};
 
 use ::config::Environment;
 use args::{ConfigCommands, CustomCommand, StarshipCommands};
@@ -83,7 +78,20 @@ struct JJData {
 
 #[derive(Default)]
 struct BookmarkData {
-    bookmarks: Option<BTreeMap<String, usize>>,
+    bookmarks: Option<Vec<Bookmark>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct Bookmark {
+    name: String,
+    distance: usize,
+    kind: BookmarkKind,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+enum BookmarkKind {
+    Tracked,
+    Untracked,
 }
 
 #[derive(Default)]
@@ -181,7 +189,7 @@ fn find_parent_bookmarks(
     workspace_helper: &WorkspaceCommandHelper,
     view: &View,
     config: &BookmarkConfig,
-    bookmarks: &mut BTreeMap<String, usize>,
+    bookmarks: &mut Vec<Bookmark>,
 ) -> Result<(), CommandError> {
     // First check if @ has bookmarks
     let wc_revs =
@@ -192,13 +200,16 @@ fn find_parent_bookmarks(
 
     if let Some(wc_id) = wc_ids.first() {
         // Check for bookmarks on @
-        let has_bookmarks = collect_bookmarks_for_commit(wc_id, view, config, bookmarks, 0);
-        if has_bookmarks {
+        let wc_bookmarks = collect_bookmarks_for_commit(wc_id, view, config, 0);
+        if let Some(bookmark) = select_bookmark(wc_bookmarks) {
+            bookmarks.push(bookmark);
             return Ok(());
         }
     }
 
-    // No bookmarks on @, use tug logic to find target
+    let mut selected_bookmark = None;
+
+    // No bookmarks on @, use tug logic to find tracked target
     let revs = workspace_helper.parse_revset(
         &Ui::null(),
         &RevisionArg::from("latest((heads(::@- & bookmarks())))".to_string()),
@@ -208,71 +219,210 @@ fn find_parent_bookmarks(
         .evaluate_to_commit_ids()?
         .collect::<Result<Vec<_>, _>>()?;
 
-    if commit_ids.is_empty() {
-        return Ok(());
+    if let Some(target_id) = commit_ids.first()
+        && let Some(distance) = distance_to_working_copy(workspace_helper, target_id)?
+        && distance <= config.search_depth
+    {
+        for bookmark in collect_bookmarks_for_commit(target_id, view, config, distance)
+            .into_iter()
+            .filter(|bookmark| bookmark.kind == BookmarkKind::Tracked)
+        {
+            choose_bookmark(&mut selected_bookmark, bookmark);
+        }
     }
 
-    let target_id = &commit_ids[0];
+    if let Some(bookmark) = find_nearest_untracked_bookmark(workspace_helper, view, config)? {
+        choose_bookmark(&mut selected_bookmark, bookmark);
+    }
 
-    // Calculate distance from target to @ using revset: count(target::@) - 1
-    // (subtract 1 because target::@ includes target itself)
-    let distance_revs = workspace_helper.parse_revset(
-        &Ui::null(),
-        &RevisionArg::from(format!("{}::@", target_id.hex())),
-    )?;
-    let distance = distance_revs
-        .evaluate_to_commit_ids()?
-        .collect::<Result<Vec<_>, _>>()?
-        .len()
-        .saturating_sub(1);
-
-    collect_bookmarks_for_commit(target_id, view, config, bookmarks, distance);
+    if let Some(bookmark) = selected_bookmark {
+        bookmarks.push(bookmark);
+    }
 
     Ok(())
 }
 
-/// Helper to collect bookmarks for a commit. Returns true if any bookmarks were found.
+fn distance_to_working_copy(
+    workspace_helper: &WorkspaceCommandHelper,
+    target_id: &CommitId,
+) -> Result<Option<usize>, CommandError> {
+    let distance_revs = workspace_helper.parse_revset(
+        &Ui::null(),
+        &RevisionArg::from(format!("{}::@", target_id.hex())),
+    )?;
+    let count = distance_revs
+        .evaluate_to_commit_ids()?
+        .collect::<Result<Vec<_>, _>>()?
+        .len();
+
+    if count == 0 {
+        return Ok(None);
+    }
+
+    // Subtract one because target::@ includes target itself.
+    Ok(Some(count.saturating_sub(1)))
+}
+
+fn find_nearest_untracked_bookmark(
+    workspace_helper: &WorkspaceCommandHelper,
+    view: &View,
+    config: &BookmarkConfig,
+) -> Result<Option<Bookmark>, CommandError> {
+    let mut selected_bookmark = None;
+
+    for (symbol, remote_ref) in view.all_remote_bookmarks() {
+        if remote_ref.is_tracked() {
+            continue;
+        }
+
+        let name = format!("{}@{}", symbol.name.as_str(), symbol.remote.as_str());
+        if bookmark_excluded(config, &name) {
+            continue;
+        }
+
+        for commit_id in remote_ref.target.added_ids() {
+            let Some(distance) = distance_to_working_copy(workspace_helper, commit_id)? else {
+                continue;
+            };
+            if distance > config.search_depth {
+                continue;
+            }
+
+            choose_bookmark(
+                &mut selected_bookmark,
+                Bookmark {
+                    name: name.clone(),
+                    distance,
+                    kind: BookmarkKind::Untracked,
+                },
+            );
+        }
+    }
+
+    Ok(selected_bookmark)
+}
+
 fn collect_bookmarks_for_commit(
     commit_id: &CommitId,
     view: &View,
     config: &BookmarkConfig,
-    bookmarks: &mut BTreeMap<String, usize>,
     distance: usize,
-) -> bool {
-    let mut found = false;
+) -> Vec<Bookmark> {
+    let mut bookmarks = Vec::new();
+    let mut local_names = HashSet::new();
 
     // Local bookmarks
     for (name, _) in view.local_bookmarks_for_commit(commit_id) {
         let name_str = name.as_str();
-        #[cfg(not(feature = "json-schema"))]
-        let excluded = config.exclude.iter().any(|glob| glob.matches(name_str));
-        #[cfg(feature = "json-schema")]
-        let excluded = false;
-        if !excluded {
-            bookmarks.insert(name_str.to_string(), distance);
-            found = true;
+        if !bookmark_excluded(config, name_str) {
+            bookmarks.push(Bookmark {
+                name: name_str.to_string(),
+                distance,
+                kind: BookmarkKind::Tracked,
+            });
+            local_names.insert(name_str.to_string());
         }
     }
 
     // Remote bookmarks (if no local with same name)
-    let local_names: HashSet<_> = bookmarks.keys().cloned().collect();
     for (symbol, remote_ref) in view.all_remote_bookmarks() {
         if remote_ref.target.added_ids().any(|id| id == commit_id)
             && !local_names.contains(symbol.name.as_str())
         {
             let name = format!("{}@{}", symbol.name.as_str(), symbol.remote.as_str());
-            #[cfg(not(feature = "json-schema"))]
-            let excluded = config.exclude.iter().any(|glob| glob.matches(&name));
-            #[cfg(feature = "json-schema")]
-            let excluded = false;
-            if !excluded {
-                bookmarks.insert(name, distance);
-                found = true;
+            if !bookmark_excluded(config, &name) {
+                let kind = if remote_ref.is_tracked() {
+                    BookmarkKind::Tracked
+                } else {
+                    BookmarkKind::Untracked
+                };
+                bookmarks.push(Bookmark {
+                    name,
+                    distance,
+                    kind,
+                });
             }
         }
     }
 
-    found
+    bookmarks
+}
+
+#[cfg(not(feature = "json-schema"))]
+fn bookmark_excluded(config: &BookmarkConfig, name: &str) -> bool {
+    config.exclude.iter().any(|glob| glob.matches(name))
+}
+
+#[cfg(feature = "json-schema")]
+fn bookmark_excluded(_config: &BookmarkConfig, _name: &str) -> bool {
+    false
+}
+
+fn select_bookmark(bookmarks: impl IntoIterator<Item = Bookmark>) -> Option<Bookmark> {
+    bookmarks.into_iter().min_by(compare_bookmarks)
+}
+
+fn choose_bookmark(selected: &mut Option<Bookmark>, bookmark: Bookmark) {
+    match selected {
+        Some(current) if compare_bookmarks(&bookmark, current) != Ordering::Less => {}
+        _ => *selected = Some(bookmark),
+    }
+}
+
+fn compare_bookmarks(left: &Bookmark, right: &Bookmark) -> Ordering {
+    left.distance
+        .cmp(&right.distance)
+        .then_with(|| left.kind.cmp(&right.kind))
+        .then_with(|| left.name.cmp(&right.name))
+}
+
+#[cfg(test)]
+mod bookmark_selection_tests {
+    use super::*;
+
+    fn bookmark(name: &str, distance: usize, kind: BookmarkKind) -> Bookmark {
+        Bookmark {
+            name: name.to_string(),
+            distance,
+            kind,
+        }
+    }
+
+    #[test]
+    fn selects_nearest_bookmark() {
+        let selected = select_bookmark([
+            bookmark("main", 5, BookmarkKind::Tracked),
+            bookmark("topic@origin", 2, BookmarkKind::Untracked),
+        ]);
+
+        assert_eq!(
+            selected,
+            Some(bookmark("topic@origin", 2, BookmarkKind::Untracked))
+        );
+    }
+
+    #[test]
+    fn selects_tracked_bookmark_when_distance_ties() {
+        let selected = select_bookmark([
+            bookmark("topic@origin", 3, BookmarkKind::Untracked),
+            bookmark("main", 3, BookmarkKind::Tracked),
+        ]);
+
+        assert_eq!(selected, Some(bookmark("main", 3, BookmarkKind::Tracked)));
+    }
+
+    #[test]
+    fn selects_lexicographic_bookmark_when_kind_and_distance_tie() {
+        let selected = select_bookmark([
+            bookmark("zeta@origin", 3, BookmarkKind::Untracked),
+            bookmark("alpha@origin", 3, BookmarkKind::Untracked),
+        ]);
+
+        assert_eq!(
+            selected,
+            Some(bookmark("alpha@origin", 3, BookmarkKind::Untracked))
+        );
+    }
 }
 
 fn main() -> ExitCode {

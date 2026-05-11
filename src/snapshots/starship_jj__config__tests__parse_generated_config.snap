@@ -53,10 +53,28 @@ Config {
                         strikethrough: None,
                     },
                 },
+                untracked: Style {
+                    color: Some(
+                        Cyan,
+                    ),
+                    bg_color: None,
+                    attributes: TextAttributess {
+                        bold: None,
+                        dimmed: None,
+                        italic: None,
+                        underline: None,
+                        blink: None,
+                        reverse: None,
+                        hidden: None,
+                        strikethrough: None,
+                    },
+                },
                 behind_symbol: Some(
                     '⇡',
                 ),
-                max_bookmarks: None,
+                max_bookmarks: Some(
+                    1,
+                ),
                 max_length: None,
                 surround_with_quotes: false,
                 ignore_empty_commits: None,

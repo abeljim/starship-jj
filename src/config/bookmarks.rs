@@ -1,7 +1,4 @@
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    io::Write,
-};
+use std::io::Write;
 
 use jj_cli::command_error::CommandError;
 #[cfg(feature = "json-schema")]
@@ -20,6 +17,9 @@ pub struct Bookmarks {
     /// Controls how bookmarks are rendered.
     #[serde(flatten)]
     style: Style,
+    /// Controls how untracked remote bookmarks are rendered.
+    #[serde(default = "default_untracked_style")]
+    untracked: Style,
     /// A suffix that will be printed when the given bookmark is behind the working copy.
     #[serde(default = "default_behind_symbol")]
     behind_symbol: Option<char>,
@@ -58,6 +58,13 @@ fn default_style() -> Style {
     }
 }
 
+fn default_untracked_style() -> Style {
+    Style {
+        color: Some(Color::Cyan),
+        ..Default::default()
+    }
+}
+
 fn default_behind_symbol() -> Option<char> {
     Some('⇡')
 }
@@ -78,6 +85,7 @@ impl Default for Bookmarks {
     fn default() -> Self {
         Self {
             style: default_style(),
+            untracked: default_untracked_style(),
             behind_symbol: default_behind_symbol(),
             max_bookmarks: default_max_bookmarks(),
             separator: default_separator(),
@@ -100,51 +108,36 @@ impl Bookmarks {
             unreachable!()
         };
 
-        self.style.print(io, default_style(), prev_style)?;
-
-        let mut ordered: BTreeMap<usize, BTreeSet<&String>> = BTreeMap::new();
-
-        for (name, behind) in bookmarks {
-            ordered
-                .entry(*behind)
-                .and_modify(|s| {
-                    s.insert(name);
-                })
-                .or_insert_with(|| {
-                    let mut s = BTreeSet::new();
-                    s.insert(name);
-                    s
-                });
+        if self.max_bookmarks == Some(0) {
+            return Ok(());
         }
 
-        let mut counter = 0;
-        'outer: for (behind, bookmarks) in ordered {
-            for name in bookmarks {
-                if let Some(number) = self.max_bookmarks
-                    && counter >= number
-                {
-                    write!(io, "{}…{module_separator}", self.separator)?;
-                    // set counter to 0 so we don't print the module separator twice
-                    counter = 0;
-                    break 'outer;
-                }
-                if counter > 0 {
-                    write!(io, "{}", self.separator)?;
-                }
-                crate::print_ansi_truncated(self.max_length, io, name, self.surround_with_quotes)?;
+        let Some(bookmark) = bookmarks.first() else {
+            return Ok(());
+        };
 
-                if behind != 0 {
-                    match self.behind_symbol {
-                        Some(s) => write!(io, "{s}{behind}")?,
-                        None => write!(io, "{behind}")?,
-                    }
-                }
-                counter += 1;
+        match bookmark.kind {
+            crate::BookmarkKind::Tracked => self.style.print(io, default_style(), prev_style)?,
+            crate::BookmarkKind::Untracked => {
+                self.untracked
+                    .print(io, default_untracked_style(), prev_style)?;
             }
         }
-        if counter != 0 {
-            write!(io, "{module_separator}")?;
+
+        crate::print_ansi_truncated(
+            self.max_length,
+            io,
+            &bookmark.name,
+            self.surround_with_quotes,
+        )?;
+
+        if bookmark.distance != 0 {
+            match self.behind_symbol {
+                Some(s) => write!(io, "{s}{}", bookmark.distance)?,
+                None => write!(io, "{}", bookmark.distance)?,
+            }
         }
+        write!(io, "{module_separator}")?;
 
         Ok(())
     }
@@ -163,7 +156,7 @@ impl Bookmarks {
         let workspace_helper = state.workspace_helper(command_helper)?;
         let view = workspace_helper.repo().view();
 
-        let mut bookmarks = BTreeMap::new();
+        let mut bookmarks = Vec::new();
 
         crate::find_parent_bookmarks(workspace_helper, view, &global.bookmarks, &mut bookmarks)?;
 

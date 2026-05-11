@@ -7,3 +7,6 @@ public
 .vscode
 .direnv
 .envrc
+
+# AI
+.codex
