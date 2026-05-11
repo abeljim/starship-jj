@@ -55,7 +55,7 @@ Config {
                 },
                 untracked: Style {
                     color: Some(
-                        Cyan,
+                        Yellow,
                     ),
                     bg_color: None,
                     attributes: TextAttributess {

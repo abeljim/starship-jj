@@ -46,7 +46,7 @@ behind_symbol = "⇡"
 # surround_with_quotes = true
 # Controls how untracked remote bookmarks are rendered.
 [module.untracked]
-color = "Cyan"
+color = "Yellow"
 
 [[module]]
 # Prints the working copy's commit text.

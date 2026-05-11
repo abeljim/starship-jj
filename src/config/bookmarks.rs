@@ -60,7 +60,7 @@ fn default_style() -> Style {
 
 fn default_untracked_style() -> Style {
     Style {
-        color: Some(Color::Cyan),
+        color: Some(Color::Yellow),
         ..Default::default()
     }
 }
